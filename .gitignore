@@ -1,0 +1,16 @@
+out/
+build/
+captures/
+classes/
+reports/
+
+library/.idea/
+
+.idea/
+.gradle/
+.navigation/
+
+*.iml
+.DS_Store
+
+local.properties

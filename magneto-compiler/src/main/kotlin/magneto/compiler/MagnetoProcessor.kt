@@ -59,6 +59,7 @@ class MagnetoProcessor : AbstractProcessor() {
             if (registry != null) {
                 env.generateRegistry(registry)
             }
+
         } catch (e: CompilationException) {
             env.messager.printMessage(Diagnostic.Kind.ERROR, e.message, e.element)
         }

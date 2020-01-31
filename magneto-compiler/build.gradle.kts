@@ -10,7 +10,6 @@ repositories {
 }
 
 dependencies {
-    compile("com.google.protobuf:protobuf-java:3.11.1")
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":magneto-runtime"))
     implementation("com.squareup:kotlinpoet:1.5.0")

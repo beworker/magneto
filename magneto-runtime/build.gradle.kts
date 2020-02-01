@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation(":magneto-compiler-protobuf")
+    implementation(project(":magneto-compiler-protobuf"))
 }
 
 tasks {

@@ -4,7 +4,7 @@ import com.google.protobuf.gradle.protoc
 plugins {
     java
     idea
-    id("com.google.protobuf") version "0.8.11"
+    id("com.google.protobuf")
 }
 
 version = "de.halfbit"

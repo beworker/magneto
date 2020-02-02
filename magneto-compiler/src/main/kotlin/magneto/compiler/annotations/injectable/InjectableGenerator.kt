@@ -21,7 +21,7 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
                             )
                         }
                     }
-                    .returns(type.interfaceName)
+                    .returns(type.interfaceTypeName)
                     .also {
                         if (type.parameters.isEmpty()) it.addStatement("return %T()", type.typeName)
                         else it.addCode(

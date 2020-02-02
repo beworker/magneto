@@ -23,17 +23,17 @@ abstract class StellarScope(
     abstract val name: String
 }
 
-@Injectable(type = InternalType::class)
+@Injectable
 internal class InternalType(
     private val typeA: TypeA,
     private val typeB: TypeB
 )
 
-@Injectable(type = TypeA::class)
+@Injectable
 class TypeA(val typeC: TypeC?)
 
-@Injectable(type = TypeB::class)
+@Injectable
 class TypeB
 
-@Injectable(type = TypeC::class)
+@Injectable
 class TypeC(val typeB: TypeB)

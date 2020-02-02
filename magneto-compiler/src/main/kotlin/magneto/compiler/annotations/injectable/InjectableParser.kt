@@ -49,8 +49,7 @@ private fun ProcessEnvironment.parseInjectableType(element: TypeElement): Inject
         }
     }
 
-    val interfaceType = annotationType
-        ?: element.failCompilation("@Injectable.type must not be null")
+    val interfaceType = annotationType ?: element
 
     val interfaceTypeMetadata = interfaceType.getAnnotation(Metadata::class.javaObjectType)
         ?: element.failCompilation("@Injectable can't be applied to $interfaceType: must be a Kotlin class")
@@ -94,7 +93,7 @@ private fun ProcessEnvironment.parseInjectableType(element: TypeElement): Inject
 
     return InjectableType(
         typeName = element.asType().asTypeName(),
-        interfaceName = interfaceType.asType().asTypeName(),
+        interfaceTypeName = interfaceType.asType().asTypeName(),
         parameters = parameters
     )
 }

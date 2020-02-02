@@ -12,6 +12,37 @@ class CompileInjectableTest {
     var temporaryFolder: TemporaryFolder = TemporaryFolder()
 
     @Test
+    fun `Injectable with no type`() {
+        val compilate = temporaryFolder.compile(
+            SourceFile.kotlin(
+                "Feature.kt",
+                """
+                    package test
+                    import magneto.Injectable
+                    
+                    @Injectable
+                    class Feature {
+                        fun perform() { }
+                    }
+                """
+            )
+        )
+
+        compilate.assertGeneratedCode(
+            """
+                package magneto.generated.factories
+
+                import magneto.internal.Factory
+                import test.Feature
+
+                @Factory
+                fun create_test_Feature(): Feature = Feature()
+                
+            """
+        )
+    }
+
+    @Test
     fun `Injectable with interface type, no parameters`() {
         val compilate = temporaryFolder.compile(
             SourceFile.kotlin(

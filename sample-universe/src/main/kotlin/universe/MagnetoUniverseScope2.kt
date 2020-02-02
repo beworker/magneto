@@ -24,5 +24,4 @@ internal class MagnetoUniverseScope2(
 
     // implicit types
     private val typeB: TypeB get() = extension.typeB
-    private val typeC: TypeC? get() = extension.typeC
 }

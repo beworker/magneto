@@ -4,7 +4,7 @@ import magneto.Injectable
 import magneto.Scope
 
 @Scope
-internal abstract class UniverseScope(
+abstract class UniverseScope(
     // bound
     val language: String
 ) {
@@ -24,7 +24,7 @@ abstract class StellarScope(
 }
 
 @Injectable
-internal class InternalType(
+class InternalType(
     private val typeA: TypeA,
     private val typeB: TypeB
 )

@@ -36,7 +36,7 @@ class CompileInjectableTest {
                 import test.Feature
 
                 @Factory
-                fun create_test_Feature(): Feature = Feature()
+                fun test_Feature(): Feature = Feature()
                 
             """
         )
@@ -77,7 +77,7 @@ class CompileInjectableTest {
                 import test.Feature
 
                 @Factory
-                fun create_test_DefaultFeature(): Feature = DefaultFeature()
+                fun test_DefaultFeature(): Feature = DefaultFeature()
                 
             """
         )
@@ -119,7 +119,7 @@ class CompileInjectableTest {
                 import test.Feature
 
                 @Factory
-                fun create_test_DefaultFeature(task: String): Feature = DefaultFeature(task)
+                fun test_DefaultFeature(task: String): Feature = DefaultFeature(task)
             """
         )
     }
@@ -161,7 +161,7 @@ class CompileInjectableTest {
                 import test.Feature
 
                 @Factory
-                fun create_test_DefaultFeature(task: String, counter: Int): Feature = DefaultFeature(task, counter)
+                fun test_DefaultFeature(task: String, counter: Int): Feature = DefaultFeature(task, counter)
             """
         )
     }

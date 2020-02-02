@@ -1,6 +1,7 @@
 package magneto.compiler
 
 import com.tschuchort.compiletesting.SourceFile
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -12,6 +13,7 @@ class CompileScopeTest {
     var temporaryFolder: TemporaryFolder = TemporaryFolder()
 
     @Test
+    @Ignore
     fun `Empty abstract scope`() {
         val compilate = temporaryFolder.compile(
             SourceFile.kotlin(
@@ -37,6 +39,7 @@ class CompileScopeTest {
     }
 
     @Test
+    @Ignore
     fun `Abstract scope, simple type property`() {
         val compilate = temporaryFolder.compile(
             SourceFile.kotlin(
@@ -84,6 +87,7 @@ class CompileScopeTest {
     }
 
     @Test
+    @Ignore
     fun `Abstract scope, parametrized type property`() {
         val compilate = temporaryFolder.compile(
             SourceFile.kotlin(

@@ -2,10 +2,7 @@ package magneto.compiler.annotations.injectable
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asTypeName
-import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
-import com.squareup.kotlinpoet.metadata.isClass
-import com.squareup.kotlinpoet.metadata.isEnum
-import com.squareup.kotlinpoet.metadata.toImmutableKmClass
+import com.squareup.kotlinpoet.metadata.*
 import kotlinx.metadata.KmClassifier
 import magneto.Injectable
 import magneto.compiler.ProcessEnvironment
@@ -18,7 +15,7 @@ import javax.lang.model.element.TypeElement
 @KotlinPoetMetadataPreview
 fun ProcessEnvironment.getInjectableTypes(): List<InjectableType> {
     val annotatedElements = round.getElementsAnnotatedWith(Injectable::class.java)
-    return annotatedElements.map { element ->
+    return annotatedElements.mapNotNull { element ->
         if (element !is TypeElement) element.failCompilation(
             "@Injectable can't be applied to $element: must be a Kotlin class"
         )
@@ -27,7 +24,7 @@ fun ProcessEnvironment.getInjectableTypes(): List<InjectableType> {
 }
 
 @KotlinPoetMetadataPreview
-private fun ProcessEnvironment.parseInjectableType(element: TypeElement): InjectableType {
+private fun ProcessEnvironment.parseInjectableType(element: TypeElement): InjectableType? {
     val typeMetadata = element.getAnnotation(Metadata::class.java)
         ?: element.failCompilation("@Injectable can't be applied to $element: must be a Kotlin class")
 
@@ -55,12 +52,25 @@ private fun ProcessEnvironment.parseInjectableType(element: TypeElement): Inject
     val interfaceType = annotationType
         ?: element.failCompilation("@Injectable.type must not be null")
 
+    val interfaceTypeMetadata = interfaceType.getAnnotation(Metadata::class.javaObjectType)
+        ?: element.failCompilation("@Injectable can't be applied to $interfaceType: must be a Kotlin class")
+
+    val interfaceTypeKmClass = try {
+        interfaceTypeMetadata.toImmutableKmClass()
+    } catch (e: UnsupportedOperationException) {
+        element.failCompilation("@Injectable can't be applied to $interfaceTypeMetadata: must be a Class type")
+    }
+
+    if (interfaceTypeKmClass.isInternal) return null
+
     if (kmClass.constructors.size > 1) {
         element.failCompilation("@Injectable can't be applied to $element: the class must have single constructor")
     }
 
     val parameters = mutableListOf<ParameterType>()
-    kmClass.constructors.first().valueParameters.forEach { parameter ->
+    val constructor = kmClass.constructors.first()
+
+    constructor.valueParameters.forEach { parameter ->
         val classifier = parameter.type?.classifier
             ?: element.failCompilation(
                 "@Injectable can't be applied to ${parameter.name} of $element: vararg are not supported"

@@ -8,31 +8,31 @@ import magneto.internal.Factory
 fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
     for (type in types) {
         val injectorName = type.typeName.toCanonicalName()
-        val file = FileSpec
+        FileSpec
             .builder("magneto.generated.factories", injectorName)
             .addFunction(
                 FunSpec.builder(injectorName)
                     .addAnnotation(Factory::class)
-                    .also {
+                    .apply {
                         for (parameter in type.dependencies) {
-                            it.addParameter(
+                            addParameter(
                                 parameter.name,
                                 parameter.typeName
                             )
                         }
                     }
                     .returns(type.interfaceTypeName)
-                    .also {
-                        if (type.dependencies.isEmpty()) it.addStatement("return %T()", type.typeName)
-                        else it.addCode(
+                    .apply {
+                        if (type.dependencies.isEmpty()) addStatement("return %T()", type.typeName)
+                        else addCode(
                             CodeBlock.builder()
                                 .add("return %T(", type.typeName)
-                                .also { code ->
+                                .apply {
                                     val lastIndex = type.dependencies.lastIndex
                                     for ((index, parameter) in type.dependencies.withIndex()) {
                                         val isLast = index == lastIndex
-                                        if (isLast) code.add(parameter.name)
-                                        else code.add("${parameter.name}, ")
+                                        if (isLast) add(parameter.name)
+                                        else add("${parameter.name}, ")
                                     }
                                 }
                                 .add(")")
@@ -42,7 +42,9 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
                     .build()
             )
             .build()
-        file.writeTo(filer)
+            .apply {
+                writeTo(filer)
+            }
     }
 }
 

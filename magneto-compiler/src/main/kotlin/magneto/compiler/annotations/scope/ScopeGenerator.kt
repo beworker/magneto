@@ -90,9 +90,9 @@ private fun ProcessEnvironment.generateScope(scope: ScopeType) {
                 .primaryConstructor(
                     FunSpec
                         .constructorBuilder()
-                        .also {
+                        .apply {
                             for (parameter in scope.parameters) {
-                                it.addParameter(parameter.name, parameter.typeName)
+                                addParameter(parameter.name, parameter.typeName)
                             }
                         }
                         .build()

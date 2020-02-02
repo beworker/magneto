@@ -7,6 +7,7 @@ import magneto.Scope
 import magneto.compiler.annotations.injectable.generateInjectables
 import magneto.compiler.annotations.injectable.getInjectableTypes
 import magneto.compiler.annotations.registry.getRegistryType
+import magneto.compiler.annotations.scope.generateScopes
 import magneto.compiler.annotations.scope.getScopeTypes
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
@@ -51,7 +52,7 @@ class MagnetoProcessor : AbstractProcessor() {
             env.generateInjectables(injectables)
 
             val scopes = env.getScopeTypes()
-            //env.generateScopes(scopes)
+            env.generateScopes(scopes)
 
             val registry = env.getRegistryType()
             if (registry != null) {

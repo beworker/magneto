@@ -4,85 +4,105 @@ import com.squareup.kotlinpoet.*
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.model.ScopeType
 import magneto.internal.Magneto
+import magneto.internal.ScopeExtension
 
 fun ProcessEnvironment.generateScopes(scopes: List<ScopeType>) {
     for (scope in scopes) {
-        val scopeClassName = scope.typeName.getScopeClassName()
-        val factoryClassName = scope.typeName.getFactoryClassName()
+        generateScopeExtensionInterface(scope)
+        generateScope(scope)
+    }
+}
 
-        FileSpec
-            .builder(scopeClassName.packageName, scopeClassName.simpleName)
-            .addType(
-                TypeSpec
-                    .classBuilder(scopeClassName)
-                    .superclass(scope.typeName)
-                    .also { typeBuilder ->
-                        for (parameter in scope.bounds) {
-                            typeBuilder.addSuperclassConstructorParameter(parameter.name)
-                        }
-                        if (scope.declarations.isNotEmpty()) {
-                            typeBuilder
-                                .addProperty(
-                                    PropertySpec.builder("_factory", factoryClassName)
-                                        .addModifiers(KModifier.PRIVATE)
-                                        .delegate(
-                                            "lazy { %T.getFactory(%T::class) }",
-                                            Magneto::class,
-                                            factoryClassName
-                                        )
-                                        .build()
-                                )
-                        }
-                        for (override in scope.declarations) {
-                            typeBuilder.addProperty(
-                                PropertySpec.builder(override.name, override.typeName)
-                                    .addModifiers(KModifier.OVERRIDE)
-                                    .delegate("lazy { _factory.${override.name}(this) }")
+private fun ProcessEnvironment.generateScopeExtensionInterface(scope: ScopeType) {
+    val interfaceClassName = scope.typeName.getScopeExtensionInterfaceClassName()
+    FileSpec
+        .builder(interfaceClassName.packageName, interfaceClassName.simpleName)
+        .addType(
+            TypeSpec
+                .interfaceBuilder(interfaceClassName)
+                .addAnnotation(ScopeExtension::class)
+                .apply {
+                    for (parameter in scope.parameters) {
+                        addProperty(parameter.name, parameter.typeName)
+                    }
+                    for (property in scope.properties) {
+                        addProperty(property.name, property.typeName)
+                    }
+                }
+                .build()
+        )
+        .build()
+        .apply {
+            writeTo(filer)
+        }
+}
+
+private fun ProcessEnvironment.generateScope(scope: ScopeType) {
+    val scopeClassName = scope.typeName.getScopeClassName()
+    val extensionInterfaceClassName = scope.typeName.getScopeExtensionInterfaceClassName()
+
+    FileSpec
+        .builder(scopeClassName.packageName, scopeClassName.simpleName)
+        .addType(
+            TypeSpec
+                .classBuilder(scopeClassName)
+                .superclass(scope.typeName)
+                .apply {
+                    addProperty(
+                        PropertySpec
+                            .builder("_extension", extensionInterfaceClassName)
+                            .initializer(
+                                CodeBlock
+                                    .builder()
+                                    .add("%T.createScopeExtension(", Magneto::class)
+                                    .apply {
+                                        val lastIndex = scope.parameters.lastIndex
+                                        if (lastIndex < 0) add("%T::class", extensionInterfaceClassName)
+                                        else add("%T::class,", extensionInterfaceClassName)
+                                        for ((index, parameter) in scope.parameters.withIndex()) {
+                                            if (index < lastIndex) add("${parameter.name},")
+                                            else add(parameter.name)
+                                        }
+                                    }
+                                    .add(")")
                                     .build()
                             )
-                        }
-                    }
-                    .primaryConstructor(
-                        FunSpec
-                            .constructorBuilder()
-                            .also {
-                                for (parameter in scope.bounds) {
-                                    it.addParameter(parameter.name, parameter.typeName)
-                                }
-                            }
                             .build()
                     )
-                    .build()
-            )
-            .build()
-            .writeTo(filer)
-
-        if (scope.declarations.isNotEmpty()) {
-            FileSpec
-                .builder(factoryClassName.packageName, factoryClassName.simpleName)
-                .addType(
-                    TypeSpec
-                        .interfaceBuilder(factoryClassName)
-                        .also { type ->
-                            for (override in scope.declarations) {
-                                type.addFunction(
-                                    FunSpec
-                                        .builder(override.name)
-                                        .addModifiers(KModifier.ABSTRACT)
-                                        .addParameter("scope", scope.typeName)
-                                        .returns(override.typeName)
+                }
+                .apply {
+                    for (parameter in scope.parameters) {
+                        addSuperclassConstructorParameter(parameter.name)
+                    }
+                    for (property in scope.properties) {
+                        addProperty(
+                            PropertySpec.builder(property.name, property.typeName)
+                                .addModifiers(KModifier.OVERRIDE)
+                                .getter(
+                                    FunSpec.getterBuilder()
+                                        .addStatement("return _extension.%L", property.name)
                                         .build()
                                 )
+                                .build()
+                        )
+                    }
+                }
+                .primaryConstructor(
+                    FunSpec
+                        .constructorBuilder()
+                        .also {
+                            for (parameter in scope.parameters) {
+                                it.addParameter(parameter.name, parameter.typeName)
                             }
                         }
                         .build()
                 )
                 .build()
-                .also {
-                    it.writeTo(filer)
-                }
+        )
+        .build()
+        .apply {
+            writeTo(filer)
         }
-    }
 }
 
 private fun TypeName.getScopeClassName(): ClassName =
@@ -95,7 +115,7 @@ private fun TypeName.getScopeClassName(): ClassName =
         is WildcardTypeName -> TODO()
     }
 
-private fun TypeName.getFactoryClassName(): ClassName {
+private fun TypeName.getScopeExtensionInterfaceClassName(): ClassName {
     val scopeName = getScopeClassName().canonicalName.replace(".", "_")
-    return ClassName("magneto.factories", "scope_${scopeName}")
+    return ClassName("magneto.generated.extensions", "${scopeName}Extension")
 }

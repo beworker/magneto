@@ -14,7 +14,7 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
                 FunSpec.builder("create_$injectorName")
                     .addAnnotation(Factory::class)
                     .also {
-                        for (parameter in type.parameters) {
+                        for (parameter in type.dependencies) {
                             it.addParameter(
                                 parameter.name,
                                 parameter.typeName
@@ -23,13 +23,13 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
                     }
                     .returns(type.interfaceTypeName)
                     .also {
-                        if (type.parameters.isEmpty()) it.addStatement("return %T()", type.typeName)
+                        if (type.dependencies.isEmpty()) it.addStatement("return %T()", type.typeName)
                         else it.addCode(
                             CodeBlock.builder()
                                 .add("return %T(", type.typeName)
                                 .also { code ->
-                                    val lastIndex = type.parameters.lastIndex
-                                    for ((index, parameter) in type.parameters.withIndex()) {
+                                    val lastIndex = type.dependencies.lastIndex
+                                    for ((index, parameter) in type.dependencies.withIndex()) {
                                         val isLast = index == lastIndex
                                         if (isLast) code.add(parameter.name)
                                         else code.add("${parameter.name}, ")

@@ -8,7 +8,7 @@ import magneto.Injectable
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.failCompilation
 import magneto.compiler.model.InjectableType
-import magneto.compiler.model.ParameterType
+import magneto.compiler.model.DependencyType
 import magneto.compiler.utils.forEachAttributeOf
 import javax.lang.model.element.TypeElement
 
@@ -66,7 +66,7 @@ private fun ProcessEnvironment.parseInjectableType(element: TypeElement): Inject
         element.failCompilation("@Injectable can't be applied to $element: the class must have single constructor")
     }
 
-    val parameters = mutableListOf<ParameterType>()
+    val parameters = mutableListOf<DependencyType>()
     val constructor = kmClass.constructors.first()
 
     constructor.valueParameters.forEach { parameter ->
@@ -85,7 +85,7 @@ private fun ProcessEnvironment.parseInjectableType(element: TypeElement): Inject
             )
         }
 
-        parameters += ParameterType(
+        parameters += DependencyType(
             name = parameter.name,
             typeName = ClassName.bestGuess(className.replace("/", "."))
         )
@@ -94,6 +94,6 @@ private fun ProcessEnvironment.parseInjectableType(element: TypeElement): Inject
     return InjectableType(
         typeName = element.asType().asTypeName(),
         interfaceTypeName = interfaceType.asType().asTypeName(),
-        parameters = parameters
+        dependencies = parameters
     )
 }

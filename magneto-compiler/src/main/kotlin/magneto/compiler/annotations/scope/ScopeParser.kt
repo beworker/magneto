@@ -5,7 +5,7 @@ import com.squareup.kotlinpoet.metadata.*
 import magneto.Scope
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.failCompilation
-import magneto.compiler.model.ParameterType
+import magneto.compiler.model.DependencyType
 import magneto.compiler.model.ScopeType
 import magneto.compiler.utils.toTypeName
 import javax.lang.model.element.TypeElement
@@ -42,21 +42,21 @@ fun ProcessEnvironment.parseScopeType(element: TypeElement): ScopeType {
         element.failCompilation("@Scope can't be applied to $element: the class must have single constructor")
     }
 
-    val parameters = mutableListOf<ParameterType>()
+    val parameters = mutableListOf<DependencyType>()
     kmClass.constructors.first().valueParameters.forEach { parameter ->
         val parameterType = parameter.type ?: element.failCompilation(
             "@Scope can't be applied to ${parameter.name} of $element: vararg are not supported"
         )
-        parameters += ParameterType(
+        parameters += DependencyType(
             name = parameter.name,
             typeName = parameterType.toTypeName(parameter.name, element)
         )
     }
 
-    val overrides = mutableListOf<ParameterType>()
+    val properties = mutableListOf<DependencyType>()
     for (property in kmClass.properties) {
         if (property.isAbstract) {
-            overrides += ParameterType(
+            properties += DependencyType(
                 name = property.name,
                 typeName = property.returnType.toTypeName(property.name, element)
             )
@@ -65,7 +65,7 @@ fun ProcessEnvironment.parseScopeType(element: TypeElement): ScopeType {
 
     return ScopeType(
         typeName = element.asType().asTypeName(),
-        bounds = parameters,
-        declarations = overrides
+        parameters = parameters,
+        properties = properties
     )
 }

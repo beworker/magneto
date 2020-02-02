@@ -6,9 +6,9 @@ import magneto.Scope
 @Scope
 internal abstract class UniverseScope(
     // bound
-    private val language: String
+    val language: String
 ) {
-    // not exported to child scopes
+    // provided, not exported to child scopes
     internal abstract val name: InternalType
 
     // exported

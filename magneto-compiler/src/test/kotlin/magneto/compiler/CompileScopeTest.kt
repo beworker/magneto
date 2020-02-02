@@ -135,4 +135,77 @@ class CompileScopeTest {
             """
         )
     }
+
+    @Test
+    fun `Scope with parameters`() {
+        val compilate = temporaryFolder.compile(
+            SourceFile.kotlin(
+                "Scope.kt",
+                """
+                    package test
+                    
+                    import magneto.Scope
+                     
+                    class TypeA
+                    class TypeB
+                    class TypeC
+                    class TypeD
+                    
+                    @Scope
+                    abstract class Scope(
+                        val typeA: TypeA,
+                        internal val typeB: TypeB
+                    ) {
+                        abstract val typeC: TypeC
+                        internal abstract val typeD: TypeD
+                    }
+                """
+            )
+        )
+
+        compilate.assertGeneratedCode(
+            """
+                package test
+                
+                import magneto.generated.extensions.test_MagnetoScopeExtension
+                import magneto.internal.Magneto
+                
+                class MagnetoScope(
+                  typeA: TypeA,
+                  typeB: TypeB
+                ) : Scope(typeA, typeB) {
+                  val _extension: test_MagnetoScopeExtension =
+                      Magneto.createScopeExtension(test_MagnetoScopeExtension::class,typeA,typeB)
+                
+                  override val typeC: TypeC
+                    get() = _extension.typeC
+                
+                  override val typeD: TypeD
+                    get() = _extension.typeD
+                }
+                
+            """,
+            """
+                package magneto.generated.extensions
+                
+                import magneto.internal.ScopeExtension
+                import test.TypeA
+                import test.TypeB
+                import test.TypeC
+                import test.TypeD
+                
+                @ScopeExtension
+                interface test_MagnetoScopeExtension {
+                  val typeA: TypeA
+                
+                  val typeB: TypeB
+                
+                  val typeC: TypeC
+                
+                  val typeD: TypeD
+                }
+                
+            """
+        )
+    }
 }

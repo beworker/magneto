@@ -39,7 +39,7 @@ class CompileInjectableTest {
 
         compilate.assertGeneratedCode(
             """
-                package magneto.factories
+                package magneto.generated.factories
 
                 import magneto.internal.Factory
                 import test.DefaultFeature
@@ -80,7 +80,7 @@ class CompileInjectableTest {
 
         compilate.assertGeneratedCode(
             """
-                package magneto.factories
+                package magneto.generated.factories
 
                 import kotlin.String
                 import magneto.internal.Factory
@@ -121,7 +121,7 @@ class CompileInjectableTest {
 
         compilate.assertGeneratedCode(
             """
-                package magneto.factories
+                package magneto.generated.factories
 
                 import kotlin.Int
                 import kotlin.String

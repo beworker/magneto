@@ -9,7 +9,7 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
     for (type in types) {
         val injectorName = type.typeName.toCanonicalName()
         val file = FileSpec
-            .builder("magneto.factories", "injector_$injectorName")
+            .builder("magneto.generated.factories", "injector_$injectorName")
             .addFunction(
                 FunSpec.builder("create_$injectorName")
                     .addAnnotation(Factory::class)

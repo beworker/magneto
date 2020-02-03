@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package magneto.compiler.protobuf;
+
+option optimize_for = LITE_RUNTIME;
+
+message Dependency {
+    string name = 1;
+    string type = 2;
+}
+
+message Factory {
+    repeated Dependency dependency = 1;
+    string type = 2;
+}

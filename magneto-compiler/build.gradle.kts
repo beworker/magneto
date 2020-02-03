@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":magneto-runtime"))
+    implementation(project(":magneto-compiler-protobuf"))
     implementation("com.squareup:kotlinpoet:1.5.0")
     implementation("com.squareup:kotlinpoet-metadata:1.5.0")
 

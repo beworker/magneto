@@ -45,6 +45,10 @@ fun ProcessEnvironment.parseRegistryType(element: TypeElement): RegistryType {
         "@Registry can't be applied to $element: must be a Kotlin interface"
     )
 
+    val factoriesPackage = elements.getPackageElement("magneto.generated.factories")
+    val factories = factoriesPackage.enclosedElements ?: emptyList()
+    // todo
+
     return RegistryType(
         factories = emptySet(),
         scopes = emptySet()

@@ -3,7 +3,9 @@ package magneto.compiler.annotations.injectable
 import com.squareup.kotlinpoet.*
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.model.InjectableType
+import magneto.compiler.protobuf.Metadata
 import magneto.internal.Factory
+import java.nio.charset.Charset
 
 fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
     for (type in types) {
@@ -12,7 +14,12 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
             .builder("magneto.generated.factories", injectorName)
             .addFunction(
                 FunSpec.builder(injectorName)
-                    .addAnnotation(Factory::class)
+                    .addAnnotation(
+                        AnnotationSpec
+                            .builder(Factory::class)
+                            .addMember("data = %S", generateFactoryData(type))
+                            .build()
+                    )
                     .apply {
                         for (parameter in type.dependencies) {
                             addParameter(
@@ -57,3 +64,20 @@ private fun TypeName.toCanonicalName(): String =
         is TypeVariableName -> TODO()
         is WildcardTypeName -> TODO()
     }
+
+private fun ProcessEnvironment.generateFactoryData(type: InjectableType): String =
+    Metadata.Factory.newBuilder()
+        .setType(type.typeName.toString())
+        .apply {
+            for (dependency in type.dependencies) {
+                addDependency(
+                    Metadata.Dependency.newBuilder()
+                        .setName(dependency.name)
+                        .setType(dependency.typeName.toString())
+                        .build()
+                )
+            }
+        }
+        .build()
+        .toByteArray()
+        .toString(Charset.forName("UTF-8"))

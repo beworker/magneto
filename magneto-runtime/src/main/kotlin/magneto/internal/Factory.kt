@@ -4,5 +4,5 @@ package magneto.internal
 @Retention(AnnotationRetention.BINARY)
 annotation class Factory(
     val version: Int = 0,
-    val data: String
+    val metadata: String
 )

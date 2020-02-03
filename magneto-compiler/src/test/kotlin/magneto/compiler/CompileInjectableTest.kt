@@ -35,7 +35,7 @@ class CompileInjectableTest {
                 import magneto.internal.Factory
                 import test.Feature
 
-                @Factory(data = "\u0012\u000ctest.Feature")
+                @Factory(metadata = "\u0012\u000ctest.Feature")
                 fun test_Feature(): Feature = Feature()
                 
             """
@@ -76,7 +76,7 @@ class CompileInjectableTest {
                 import test.DefaultFeature
                 import test.Feature
 
-                @Factory(data = "\u0012\u0013test.DefaultFeature")
+                @Factory(metadata = "\u0012\u0013test.DefaultFeature")
                 fun test_DefaultFeature(): Feature = DefaultFeature()
                 
             """
@@ -118,7 +118,7 @@ class CompileInjectableTest {
                 import test.DefaultFeature
                 import test.Feature
 
-                @Factory(data = "\n\u0015\n\u0004task\u0012\rkotlin.String\u0012\u0013test.DefaultFeature")
+                @Factory(metadata = "\n\u0015\n\u0004task\u0012\rkotlin.String\u0012\u0013test.DefaultFeature")
                 fun test_DefaultFeature(task: String): Feature = DefaultFeature(task)
             """
         )
@@ -160,7 +160,7 @@ class CompileInjectableTest {
                 import test.DefaultFeature
                 import test.Feature
 
-                @Factory(data =
+                @Factory(metadata =
                     "\n\u0015\n\u0004task\u0012\rkotlin.String\n\u0015\n\u0007counter\u0012\nkotlin.Int\u0012\u0013test.DefaultFeature")
                 fun test_DefaultFeature(task: String, counter: Int): Feature = DefaultFeature(task, counter)
             """

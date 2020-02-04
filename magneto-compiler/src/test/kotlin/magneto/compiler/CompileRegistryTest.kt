@@ -48,7 +48,7 @@ class CompileRegistryTest {
                 """
             ),
             SourceFile.kotlin(
-                "magneto_test_TypeB.kt",
+                "test_MagnetoScopeExtension.kt",
                 """
                     package magneto.generated.extensions
                     
@@ -56,7 +56,8 @@ class CompileRegistryTest {
                     import test.TypeA
                     import test.TypeB
                     
-                    @ScopeExtension
+                    @ScopeExtension(metadata =
+                        "\n\ntest.Scope\u0012\u0013\n\u0005typeA\u0012\ntest.TypeA\u001a\u0013\n\u0005typeB\u0012\ntest.TypeB")
                     interface test_MagnetoScopeExtension {
                       val typeA: TypeA
                       val typeB: TypeB

@@ -128,11 +128,11 @@ private fun TypeName.getScopeExtensionInterfaceClassName(): ClassName {
 }
 
 fun generateScopeMetadata(scope: ScopeType): String =
-    Metadata.Factory.newBuilder()
+    Metadata.Scope.newBuilder()
         .setType(scope.typeName.toString())
         .apply {
             for (property in scope.properties) {
-                addDependency(
+                addProperty(
                     Metadata.Dependency.newBuilder()
                         .setName(property.name)
                         .setType(property.typeName.toString())
@@ -140,7 +140,7 @@ fun generateScopeMetadata(scope: ScopeType): String =
                 )
             }
             for (parameter in scope.parameters) {
-                addDependency(
+                addParameter(
                     Metadata.Dependency.newBuilder()
                         .setName(parameter.name)
                         .setType(parameter.typeName.toString())

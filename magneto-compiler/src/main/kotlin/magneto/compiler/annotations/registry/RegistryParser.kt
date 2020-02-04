@@ -10,13 +10,15 @@ import magneto.compiler.failCompilation
 import magneto.compiler.model.DependencyType
 import magneto.compiler.model.FactoryType
 import magneto.compiler.model.RegistryType
+import magneto.compiler.model.ScopeType
 import magneto.compiler.utils.forEachAttributeOf
 import magneto.internal.Factory
+import magneto.internal.ScopeExtension
 import java.nio.charset.Charset
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import kotlin.Metadata
-import magneto.compiler.protobuf.Metadata as FactoryMetadata
+import magneto.compiler.protobuf.Metadata as ProtobufMetadata
 
 @KotlinPoetMetadataPreview
 fun ProcessEnvironment.getRegistryType(): RegistryType? {
@@ -56,7 +58,7 @@ fun ProcessEnvironment.parseRegistryType(element: TypeElement): RegistryType {
 
     return RegistryType(
         factories = getEnclosedFactories(),
-        scopes = emptySet()
+        scopes = getEnclosedScopes()
     )
 }
 
@@ -70,16 +72,15 @@ private fun ProcessEnvironment.getEnclosedFactories(): Map<String, FactoryType> 
                 child.forEachAttributeOf<Factory> { name, value ->
                     if (name == "metadata") {
                         val bytes = value.value.toString().toByteArray(Charset.forName("UTF-8"))
-                        val factory = FactoryMetadata.Factory.parseFrom(bytes)
+                        val factory = ProtobufMetadata.Factory.parseFrom(bytes)
                         val factoryType = factory.type
                         val factoryTypeName = ClassName.bestGuess(factoryType)
-                        val dependencies = factory.dependencyList
-                            .map {
-                                DependencyType(
-                                    name = it.name,
-                                    typeName = ClassName.bestGuess(it.type)
-                                )
-                            }
+                        val dependencies = factory.dependencyList.map {
+                            DependencyType(
+                                name = it.name,
+                                typeName = ClassName.bestGuess(it.type)
+                            )
+                        }
                         factories[factoryType] = FactoryType(
                             typeName = factoryTypeName,
                             dependencies = dependencies
@@ -90,4 +91,39 @@ private fun ProcessEnvironment.getEnclosedFactories(): Map<String, FactoryType> 
         }
     }
     return factories
+}
+
+private fun ProcessEnvironment.getEnclosedScopes(): List<ScopeType> {
+    val scopes = mutableListOf<ScopeType>()
+    val extensionsPackage = elements.getPackageElement("magneto.generated.extensions")
+    val extensionHolders = extensionsPackage.enclosedElements ?: emptyList()
+    for (holder in extensionHolders) {
+        if (holder.kind == ElementKind.INTERFACE) {
+            holder.forEachAttributeOf<ScopeExtension> { name, value ->
+                if (name == "metadata") {
+                    val bytes = value.value.toString().toByteArray(Charset.forName("UTF-8"))
+                    val scope = ProtobufMetadata.Scope.parseFrom(bytes)
+                    val scopeTypeName = ClassName.bestGuess(scope.type)
+                    val parameters = scope.parameterList.map {
+                        DependencyType(
+                            name = it.name,
+                            typeName = ClassName.bestGuess(it.type)
+                        )
+                    }
+                    val properties = scope.propertyList.map {
+                        DependencyType(
+                            name = it.name,
+                            typeName = ClassName.bestGuess(it.type)
+                        )
+                    }
+                    scopes += ScopeType(
+                        typeName = scopeTypeName,
+                        parameters = parameters,
+                        properties = properties
+                    )
+                }
+            }
+        }
+    }
+    return scopes
 }

@@ -2,5 +2,5 @@ package magneto.compiler.model
 
 data class RegistryType(
     val factories: Map<String, FactoryType>,
-    val scopes: Set<ScopeType>
+    val scopes: List<ScopeType>
 )

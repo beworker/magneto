@@ -7,7 +7,7 @@
 | Annotations | Provides, Binds, Inject | Instance | Injectable |
 | Provide into set | Within Component | Global (between modules) | Global (between modules) | 
 | Provide into map | Within Component | No | No |
-| Reflection | No | Single class | No |
+| Reflection-less | Yes | No (Single class) | Yes |
 | Disposable | No | Scopes | Scopes |
 | Injection of generics | Yes | No | Yes |
 | Target Language | Java | Java, Kotlin | Kotlin |

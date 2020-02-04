@@ -7,7 +7,7 @@
 | Annotations | Provides, Binds, Inject | Injectable | Instance |
 | Provide into set | In single Component | Global (between modules) | Global (between modules) | 
 | Provide into map | In single Component | No | No |
-| Code generation | apt | kapt | apt |
+| Code generation | apt | apt | apt |
 | Disposable | No | Scopes | Scopes |
 | Full generics support | Yes | Yes | No |
 | Support default arguments | No | Yes | Yes (w/ JvmOverloads) |

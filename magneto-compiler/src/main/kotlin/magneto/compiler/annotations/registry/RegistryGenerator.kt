@@ -5,4 +5,5 @@ import magneto.compiler.model.RegistryType
 
 fun ProcessEnvironment.generateRegistry(registry: RegistryType) {
     // fixme generate registry
+    println("xxx")
 }

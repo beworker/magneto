@@ -3,8 +3,10 @@ package magneto.compiler.annotations.scope
 import com.squareup.kotlinpoet.*
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.model.ScopeType
+import magneto.compiler.protobuf.Metadata
 import magneto.internal.Magneto
 import magneto.internal.ScopeExtension
+import java.nio.charset.Charset
 
 fun ProcessEnvironment.generateScopes(scopes: List<ScopeType>) {
     for (scope in scopes) {
@@ -20,7 +22,12 @@ private fun ProcessEnvironment.generateScopeExtensionInterface(scope: ScopeType)
         .addType(
             TypeSpec
                 .interfaceBuilder(interfaceClassName)
-                .addAnnotation(ScopeExtension::class)
+                .addAnnotation(
+                    AnnotationSpec
+                        .builder(ScopeExtension::class)
+                        .addMember("metadata = %S", generateScopeMetadata(scope))
+                        .build()
+                )
                 .apply {
                     for (parameter in scope.parameters) {
                         addProperty(parameter.name, parameter.typeName)
@@ -119,3 +126,28 @@ private fun TypeName.getScopeExtensionInterfaceClassName(): ClassName {
     val scopeName = getScopeClassName().canonicalName.replace(".", "_")
     return ClassName("magneto.generated.extensions", "${scopeName}Extension")
 }
+
+fun generateScopeMetadata(scope: ScopeType): String =
+    Metadata.Factory.newBuilder()
+        .setType(scope.typeName.toString())
+        .apply {
+            for (property in scope.properties) {
+                addDependency(
+                    Metadata.Dependency.newBuilder()
+                        .setName(property.name)
+                        .setType(property.typeName.toString())
+                        .build()
+                )
+            }
+            for (parameter in scope.parameters) {
+                addDependency(
+                    Metadata.Dependency.newBuilder()
+                        .setName(parameter.name)
+                        .setType(parameter.typeName.toString())
+                        .build()
+                )
+            }
+        }
+        .build()
+        .toByteArray()
+        .toString(Charset.forName("UTF-8"))

@@ -1,13 +1,22 @@
 package magneto.compiler.annotations.registry
 
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import com.squareup.kotlinpoet.metadata.isInterface
 import com.squareup.kotlinpoet.metadata.toImmutableKmClass
 import magneto.Registry
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.failCompilation
+import magneto.compiler.model.DependencyType
+import magneto.compiler.model.FactoryType
 import magneto.compiler.model.RegistryType
+import magneto.compiler.utils.forEachAttributeOf
+import magneto.internal.Factory
+import java.nio.charset.Charset
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
+import kotlin.Metadata
+import magneto.compiler.protobuf.Metadata as FactoryMetadata
 
 @KotlinPoetMetadataPreview
 fun ProcessEnvironment.getRegistryType(): RegistryType? {
@@ -45,12 +54,40 @@ fun ProcessEnvironment.parseRegistryType(element: TypeElement): RegistryType {
         "@Registry can't be applied to $element: must be a Kotlin interface"
     )
 
-    val factoriesPackage = elements.getPackageElement("magneto.generated.factories")
-    val factories = factoriesPackage.enclosedElements ?: emptyList()
-    // todo
-
     return RegistryType(
-        factories = emptySet(),
+        factories = getEnclosedFactories(),
         scopes = emptySet()
     )
+}
+
+private fun ProcessEnvironment.getEnclosedFactories(): Map<String, FactoryType> {
+    val factories = mutableMapOf<String, FactoryType>()
+    val factoriesPackage = elements.getPackageElement("magneto.generated.factories")
+    val factoryHolders = factoriesPackage.enclosedElements ?: emptyList()
+    for (holder in factoryHolders) {
+        for (child in holder.enclosedElements) {
+            if (child.kind == ElementKind.METHOD) {
+                child.forEachAttributeOf<Factory> { name, value ->
+                    if (name == "metadata") {
+                        val bytes = value.value.toString().toByteArray(Charset.forName("UTF-8"))
+                        val factory = FactoryMetadata.Factory.parseFrom(bytes)
+                        val factoryType = factory.type
+                        val factoryTypeName = ClassName.bestGuess(factoryType)
+                        val dependencies = factory.dependencyList
+                            .map {
+                                DependencyType(
+                                    name = it.name,
+                                    typeName = ClassName.bestGuess(it.type)
+                                )
+                            }
+                        factories[factoryType] = FactoryType(
+                            typeName = factoryTypeName,
+                            dependencies = dependencies
+                        )
+                    }
+                }
+            }
+        }
+    }
+    return factories
 }

@@ -13,3 +13,9 @@ message Factory {
     repeated Dependency dependency = 1;
     string type = 2;
 }
+
+message Scope {
+    string type = 1;
+    repeated Dependency parameter = 2;
+    repeated Dependency property = 3;
+}

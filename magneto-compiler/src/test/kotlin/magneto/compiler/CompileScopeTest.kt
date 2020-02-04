@@ -194,7 +194,8 @@ class CompileScopeTest {
                 import test.TypeC
                 import test.TypeD
                 
-                @ScopeExtension
+                @ScopeExtension(metadata =
+                    "\n\u0013\n\u0005typeC\u0012\ntest.TypeC\n\u0013\n\u0005typeD\u0012\ntest.TypeD\n\u0013\n\u0005typeA\u0012\ntest.TypeA\n\u0013\n\u0005typeB\u0012\ntest.TypeB\u0012\ntest.Scope")
                 interface test_MagnetoScopeExtension {
                   val typeA: TypeA
                 

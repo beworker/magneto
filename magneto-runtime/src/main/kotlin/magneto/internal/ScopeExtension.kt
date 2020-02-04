@@ -1,3 +1,8 @@
 package magneto.internal
 
-annotation class ScopeExtension
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+annotation class ScopeExtension(
+    val version: Int = 0,
+    val metadata: String
+)

@@ -9,9 +9,10 @@ message Dependency {
     string type = 2;
 }
 
-message Factory {
-    repeated Dependency dependency = 1;
-    string type = 2;
+message Injectable {
+    string type = 1;
+    string interfaceType = 2;
+    repeated Dependency dependency = 3;
 }
 
 message Scope {

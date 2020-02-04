@@ -8,7 +8,7 @@ import magneto.Registry
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.failCompilation
 import magneto.compiler.model.DependencyType
-import magneto.compiler.model.FactoryType
+import magneto.compiler.model.InjectableType
 import magneto.compiler.model.RegistryType
 import magneto.compiler.model.ScopeType
 import magneto.compiler.utils.forEachAttributeOf
@@ -57,40 +57,39 @@ fun ProcessEnvironment.parseRegistryType(element: TypeElement): RegistryType {
     )
 
     return RegistryType(
-        factories = getEnclosedFactories(),
+        injectables = getEnclosedFactories(),
         scopes = getEnclosedScopes()
     )
 }
 
-private fun ProcessEnvironment.getEnclosedFactories(): Map<String, FactoryType> {
-    val factories = mutableMapOf<String, FactoryType>()
-    val factoriesPackage = elements.getPackageElement("magneto.generated.factories")
-    val factoryHolders = factoriesPackage.enclosedElements ?: emptyList()
-    for (holder in factoryHolders) {
+private fun ProcessEnvironment.getEnclosedFactories(): Map<String, InjectableType> {
+    val injectables = mutableMapOf<String, InjectableType>()
+    val injectablesPackage = elements.getPackageElement("magneto.generated.factories")
+    val injectableHolders = injectablesPackage.enclosedElements ?: emptyList()
+    for (holder in injectableHolders) {
         for (child in holder.enclosedElements) {
             if (child.kind == ElementKind.METHOD) {
                 child.forEachAttributeOf<Factory> { name, value ->
                     if (name == "metadata") {
                         val bytes = value.value.toString().toByteArray(Charset.forName("UTF-8"))
-                        val factory = ProtobufMetadata.Factory.parseFrom(bytes)
-                        val factoryType = factory.type
-                        val factoryTypeName = ClassName.bestGuess(factoryType)
-                        val dependencies = factory.dependencyList.map {
-                            DependencyType(
-                                name = it.name,
-                                typeName = ClassName.bestGuess(it.type)
-                            )
-                        }
-                        factories[factoryType] = FactoryType(
-                            typeName = factoryTypeName,
-                            dependencies = dependencies
+                        val injectable = ProtobufMetadata.Injectable.parseFrom(bytes)
+                        val injectableType = injectable.type
+                        injectables[injectableType] = InjectableType(
+                            typeName = ClassName.bestGuess(injectableType),
+                            interfaceTypeName = ClassName.bestGuess(injectable.interfaceType),
+                            dependencies = injectable.dependencyList.map {
+                                DependencyType(
+                                    name = it.name,
+                                    typeName = ClassName.bestGuess(it.type)
+                                )
+                            }
                         )
                     }
                 }
             }
         }
     }
-    return factories
+    return injectables
 }
 
 private fun ProcessEnvironment.getEnclosedScopes(): List<ScopeType> {
@@ -104,22 +103,20 @@ private fun ProcessEnvironment.getEnclosedScopes(): List<ScopeType> {
                     val bytes = value.value.toString().toByteArray(Charset.forName("UTF-8"))
                     val scope = ProtobufMetadata.Scope.parseFrom(bytes)
                     val scopeTypeName = ClassName.bestGuess(scope.type)
-                    val parameters = scope.parameterList.map {
-                        DependencyType(
-                            name = it.name,
-                            typeName = ClassName.bestGuess(it.type)
-                        )
-                    }
-                    val properties = scope.propertyList.map {
-                        DependencyType(
-                            name = it.name,
-                            typeName = ClassName.bestGuess(it.type)
-                        )
-                    }
                     scopes += ScopeType(
                         typeName = scopeTypeName,
-                        parameters = parameters,
-                        properties = properties
+                        parameters = scope.parameterList.map {
+                            DependencyType(
+                                name = it.name,
+                                typeName = ClassName.bestGuess(it.type)
+                            )
+                        },
+                        properties = scope.propertyList.map {
+                            DependencyType(
+                                name = it.name,
+                                typeName = ClassName.bestGuess(it.type)
+                            )
+                        }
                     )
                 }
             }

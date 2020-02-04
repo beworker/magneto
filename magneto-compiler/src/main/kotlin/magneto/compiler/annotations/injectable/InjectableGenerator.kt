@@ -17,7 +17,7 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
                     .addAnnotation(
                         AnnotationSpec
                             .builder(Factory::class)
-                            .addMember("metadata = %S", generateFactoryMetadata(type))
+                            .addMember("metadata = %S", generateInjectableMetadata(type))
                             .build()
                     )
                     .apply {
@@ -65,8 +65,8 @@ private fun TypeName.toCanonicalName(): String =
         is WildcardTypeName -> TODO()
     }
 
-private fun generateFactoryMetadata(type: InjectableType): String =
-    Metadata.Factory.newBuilder()
+private fun generateInjectableMetadata(type: InjectableType): String =
+    Metadata.Injectable.newBuilder()
         .setType(type.typeName.toString())
         .apply {
             for (dependency in type.dependencies) {

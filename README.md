@@ -1,15 +1,15 @@
 
-| Feature | Dagger | Magneto | Magnet | 
+| Feature | Magneto | Magnet | Dagger |
 | ----- | ------ | ------ | ------ | 
-| Hierarchy | DAG of Components | DAG of Scopes | Tree of Scopes | 
-| Dependency validation | Strong compile-time | Strong compile-time | Weak compile-time, Strong runtime | 
-| Entities | Components, Subcomponents, Modules | Scopes | Scopes |
-| Annotations | Provides, Binds, Inject | Injectable | Instance |
-| Provide into set | In single Component | Global (between modules) | Global (between modules) | 
-| Provide into map | In single Component | No | No |
+| Hierarchy | DAG of Scopes | Tree of Scopes | DAG of Components |
+| Dependency validation | Strong compile-time | Weak compile-time, Strong runtime | Strong compile-time |
+| Entities | Scopes | Scopes | Components, Subcomponents, Modules | 
+| Annotations | Injectable | Instance | Provides, Binds, Inject | 
+| Provide into set | Global (between modules) | Global (between modules) | In single Component |
+| Provide into map | No | No | In single Component | 
 | Code generation | apt | apt | apt |
-| Disposable | No | Scopes | Scopes |
-| Full generics support | Yes | Yes | No |
-| Support default arguments | No | Yes | Yes (w/ JvmOverloads) |
-| Support nullable types | No | Yes | Yes |
-| Target Language | Java | Kotlin | Java, Kotlin |
+| Disposable entities | Scopes | Scopes | No |
+| Full generics support | Yes | No | Yes |
+| Support default arguments | Yes | Yes (w/ JvmOverloads) | No | 
+| Support nullable types | Yes | Yes | No |
+| Target Language | Kotlin | Java, Kotlin | Java |

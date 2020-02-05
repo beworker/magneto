@@ -167,15 +167,15 @@ class CompileScopeTest {
             """
                 package test
                 
-                import magneto.generated.extensions.test_MagnetoScopeExtension
+                import magneto.generated.extensions.test_ScopeExtension
                 import magneto.internal.Magneto
                 
                 class MagnetoScope(
                   typeA: TypeA,
                   typeB: TypeB
                 ) : Scope(typeA, typeB) {
-                  val _extension: test_MagnetoScopeExtension =
-                      Magneto.createScopeExtension(test_MagnetoScopeExtension::class,typeA,typeB)
+                  val _extension: test_ScopeExtension =
+                      Magneto.createScopeExtension(test_ScopeExtension::class,typeA,typeB)
                 
                   override val typeC: TypeC
                     get() = _extension.typeC
@@ -196,7 +196,7 @@ class CompileScopeTest {
                 
                 @ScopeExtension(metadata =
                     "\n\ntest.Scope\u0012\u0013\n\u0005typeA\u0012\ntest.TypeA\u0012\u0013\n\u0005typeB\u0012\ntest.TypeB\u001a\u0013\n\u0005typeC\u0012\ntest.TypeC\u001a\u0013\n\u0005typeD\u0012\ntest.TypeD")
-                interface test_MagnetoScopeExtension {
+                interface test_ScopeExtension {
                   val typeA: TypeA
                 
                   val typeB: TypeB

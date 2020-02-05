@@ -12,7 +12,14 @@ internal fun TypeName.getScopeClassName(): ClassName =
         is WildcardTypeName -> TODO()
     }
 
+internal fun TypeName.requireClassName(): ClassName =
+    when (this) {
+        is ClassName -> ClassName(packageName, simpleName)
+        else -> error("Cannot cast $this to ClassName")
+    }
+
 internal fun TypeName.getScopeExtensionInterfaceClassName(): ClassName {
-    val scopeName = getScopeClassName().canonicalName.replace(".", "_")
-    return ClassName("magneto.generated.extensions", "${scopeName}Extension")
+    val scopeName = requireClassName()
+    val name = "${scopeName.packageName.replace(".", "_")}_${scopeName.simpleName}Extension"
+    return ClassName("magneto.generated.extensions", name)
 }

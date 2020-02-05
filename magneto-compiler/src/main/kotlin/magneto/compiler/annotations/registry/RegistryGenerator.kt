@@ -2,8 +2,8 @@ package magneto.compiler.annotations.registry
 
 import com.squareup.kotlinpoet.*
 import magneto.compiler.ProcessEnvironment
-import magneto.compiler.annotations.getScopeClassName
 import magneto.compiler.annotations.getScopeExtensionInterfaceClassName
+import magneto.compiler.annotations.requireClassName
 import magneto.compiler.model.RegistryType
 import magneto.compiler.model.ScopeType
 
@@ -58,6 +58,7 @@ private fun ProcessEnvironment.generateScopeExtension(scope: ScopeType) {
 }
 
 private fun TypeName.getScopeExtensionClassName(): ClassName {
-    val scopeName = getScopeClassName().canonicalName.replace(".", "_")
-    return ClassName("magneto.generated.extensions", "Magnet${scopeName}Extension")
+    val scopeName = requireClassName()
+    val name = "${scopeName.packageName.replace(".", "_")}_Magneto${scopeName.simpleName}Extension"
+    return ClassName("magneto.generated.extensions", name)
 }

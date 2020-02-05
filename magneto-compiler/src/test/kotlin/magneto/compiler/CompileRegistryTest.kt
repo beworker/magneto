@@ -178,7 +178,7 @@ class CompileRegistryTest {
             """
                 package test.main
                 
-                import magneto.generated.extensions.test_main_MagnetoScopeAExtension
+                import magneto.generated.extensions.test_main_ScopeAExtension
                 import magneto.internal.Magneto
                 import magneto.test.TypeA
                 import magneto.test.TypeB
@@ -189,32 +189,14 @@ class CompileRegistryTest {
                   typeA: TypeA,
                   typeB: TypeB
                 ) : ScopeA(typeA, typeB) {
-                  val _extension: test_main_MagnetoScopeAExtension =
-                      Magneto.createScopeExtension(test_main_MagnetoScopeAExtension::class,typeA,typeB)
+                  val _extension: test_main_ScopeAExtension =
+                      Magneto.createScopeExtension(test_main_ScopeAExtension::class,typeA,typeB)
                 
                   override val typeC: TypeC
                     get() = _extension.typeC
                 
                   override val typeD: TypeD
                     get() = _extension.typeD
-                }
-
-            """,
-            """
-                package magneto.generated.extensions
-                
-                import magneto.test.TypeA
-                import magneto.test.TypeB
-                import magneto.test.TypeC
-                import magneto.test.TypeD
-                
-                class Magnettest_main_MagnetoScopeAExtension(
-                  override val typeA: TypeA,
-                  override val typeB: TypeB
-                ) : test_main_MagnetoScopeAExtension {
-                  override val typeC: TypeC by lazy { TODO() }
-                
-                  override val typeD: TypeD by lazy { TODO() }
                 }
 
             """,
@@ -229,7 +211,7 @@ class CompileRegistryTest {
                 
                 @ScopeExtension(metadata =
                     "\n\u0010test.main.ScopeA\u0012\u001b\n\u0005typeA\u0012\u0012magneto.test.TypeA\u0012\u001b\n\u0005typeB\u0012\u0012magneto.test.TypeB\u001a\u001b\n\u0005typeC\u0012\u0012magneto.test.TypeC\u001a\u001b\n\u0005typeD\u0012\u0012magneto.test.TypeD")
-                interface test_main_MagnetoScopeAExtension {
+                interface test_main_ScopeAExtension {
                   val typeA: TypeA
                 
                   val typeB: TypeB
@@ -237,6 +219,24 @@ class CompileRegistryTest {
                   val typeC: TypeC
                 
                   val typeD: TypeD
+                }
+
+            """,
+            """
+                package magneto.generated.extensions
+                
+                import magneto.test.TypeA
+                import magneto.test.TypeB
+                import magneto.test.TypeC
+                import magneto.test.TypeD
+                
+                class test_main_MagnetoScopeAExtension(
+                  override val typeA: TypeA,
+                  override val typeB: TypeB
+                ) : test_main_ScopeAExtension {
+                  override val typeC: TypeC by lazy { TODO() }
+                
+                  override val typeD: TypeD by lazy { TODO() }
                 }
 
             """

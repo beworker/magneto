@@ -1,6 +1,6 @@
 package magneto.compiler.model
 
 data class RegistryType(
-    val injectables: Map<String, InjectableType>,
+    val injectables: List<InjectableType>,
     val scopes: List<ScopeType>
 )

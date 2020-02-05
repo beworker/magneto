@@ -62,8 +62,8 @@ fun ProcessEnvironment.parseRegistryType(element: TypeElement): RegistryType {
     )
 }
 
-private fun ProcessEnvironment.getEnclosedFactories(): Map<String, InjectableType> {
-    val injectables = mutableMapOf<String, InjectableType>()
+private fun ProcessEnvironment.getEnclosedFactories(): List<InjectableType> {
+    val injectables = mutableListOf<InjectableType>()
     val injectablesPackage = elements.getPackageElement("magneto.generated.factories")
     val injectableHolders = injectablesPackage.enclosedElements ?: emptyList()
     for (holder in injectableHolders) {
@@ -74,7 +74,7 @@ private fun ProcessEnvironment.getEnclosedFactories(): Map<String, InjectableTyp
                         val bytes = value.value.toString().toByteArray(Charset.forName("UTF-8"))
                         val injectable = ProtobufMetadata.Injectable.parseFrom(bytes)
                         val injectableType = injectable.type
-                        injectables[injectableType] = InjectableType(
+                        injectables += InjectableType(
                             typeName = ClassName.bestGuess(injectableType),
                             interfaceTypeName = ClassName.bestGuess(injectable.interfaceType),
                             dependencies = injectable.dependencyList.map {
@@ -95,7 +95,7 @@ private fun ProcessEnvironment.getEnclosedFactories(): Map<String, InjectableTyp
 private fun ProcessEnvironment.getEnclosedScopes(): List<ScopeType> {
     val scopes = mutableListOf<ScopeType>()
     val extensionsPackage = elements.getPackageElement("magneto.generated.extensions")
-    val extensionHolders = extensionsPackage.enclosedElements ?: emptyList()
+    val extensionHolders = extensionsPackage?.enclosedElements ?: emptyList()
     for (holder in extensionHolders) {
         if (holder.kind == ElementKind.INTERFACE) {
             holder.forEachAttributeOf<ScopeExtension> { name, value ->

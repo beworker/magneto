@@ -1,7 +1,6 @@
 package magneto.compiler
 
 import com.tschuchort.compiletesting.SourceFile
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -13,54 +12,153 @@ class CompileRegistryTest {
     var temporaryFolder: TemporaryFolder = TemporaryFolder()
 
     @Test
-    @Ignore
-    fun `Empty abstract scope`() {
+    fun `Generate registry, prepare injectables`() {
+        val compilate = temporaryFolder.compile(
+            SourceFile.kotlin(
+                "Model.kt",
+                """
+                    package magneto.test
+                    import magneto.Injectable
+
+                    @Injectable 
+                    class TypeA
+                    
+                    @Injectable
+                    class TypeB
+                    
+                    @Injectable
+                    class TypeC
+                    
+                    @Injectable
+                    class TypeD
+                """
+            )
+        )
+
+        compilate.assertGeneratedCode(
+            """
+                package magneto.generated.factories
+                
+                import magneto.internal.InjectableFactory
+                import magneto.test.TypeB
+                
+                @InjectableFactory(metadata = "\n\u0012magneto.test.TypeB\u0012\u0012magneto.test.TypeB")
+                fun magneto_test_TypeB(): TypeB = TypeB()
+          
+            """,
+            """
+                package magneto.generated.factories
+                
+                import magneto.internal.InjectableFactory
+                import magneto.test.TypeC
+                
+                @InjectableFactory(metadata = "\n\u0012magneto.test.TypeC\u0012\u0012magneto.test.TypeC")
+                fun magneto_test_TypeC(): TypeC = TypeC()
+
+            """,
+            """
+                package magneto.generated.factories
+                
+                import magneto.internal.InjectableFactory
+                import magneto.test.TypeD
+                
+                @InjectableFactory(metadata = "\n\u0012magneto.test.TypeD\u0012\u0012magneto.test.TypeD")
+                fun magneto_test_TypeD(): TypeD = TypeD()
+
+            """,
+            """
+                package magneto.generated.factories
+                
+                import magneto.internal.InjectableFactory
+                import magneto.test.TypeA
+                
+                @InjectableFactory(metadata = "\n\u0012magneto.test.TypeA\u0012\u0012magneto.test.TypeA")
+                fun magneto_test_TypeA(): TypeA = TypeA()
+
+            """
+        )
+    }
+
+    @Test
+    fun `Generate registry`() {
         val compilate = temporaryFolder.compile(
             SourceFile.kotlin(
                 "Model.kt",
                 """
                     package magneto.test
                      
-                    data class TypeA(val value: String)
-                    data class TypeB(val value: Int)
+                    class TypeA
+                    class TypeB
+                    class TypeC
+                    class TypeD
                 """
             ),
             SourceFile.kotlin(
                 "magneto_test_TypeA.kt",
                 """
                     package magneto.generated.factories
-                    import magneto.internal.Factory 
+                    
+                    import magneto.internal.InjectableFactory
                     import magneto.test.TypeA
                     
-                    @Factory(metadata = "\n\u0016\n\u0005value\u0012\rkotlin.String\u0012\u0012magneto.test.TypeA")
-                    fun magneto_test_TypeA(value: String) = TypeA(value)
+                    @InjectableFactory(metadata = "\n\u0012magneto.test.TypeA\u0012\u0012magneto.test.TypeA")
+                    fun magneto_test_TypeA(): TypeA = TypeA()
                 """
             ),
             SourceFile.kotlin(
                 "magneto_test_TypeB.kt",
                 """
                     package magneto.generated.factories
-                    import magneto.internal.Factory 
+                    
+                    import magneto.internal.InjectableFactory
                     import magneto.test.TypeB
                     
-                    @Factory(metadata = "\n\u0013\n\u0005value\u0012\nkotlin.Int\u0012\u0012magneto.test.TypeB")
-                    fun magneto_test_TypeB(value: Int) = TypeB(value)
+                    @InjectableFactory(metadata = "\n\u0012magneto.test.TypeB\u0012\u0012magneto.test.TypeB")
+                    fun magneto_test_TypeB(): TypeB = TypeB()
                 """
             ),
             SourceFile.kotlin(
                 "test_MagnetoScopeExtension.kt",
                 """
-                    package magneto.generated.extensions
+                    package magneto.generated.factories
                     
-                    import magneto.internal.ScopeExtension
-                    import test.TypeA
-                    import test.TypeB
+                    import magneto.internal.InjectableFactory
+                    import magneto.test.TypeC
                     
-                    @ScopeExtension(metadata =
-                        "\n\ntest.Scope\u0012\u0013\n\u0005typeA\u0012\ntest.TypeA\u001a\u0013\n\u0005typeB\u0012\ntest.TypeB")
-                    interface test_MagnetoScopeExtension {
-                      val typeA: TypeA
-                      val typeB: TypeB
+                    @InjectableFactory(metadata = "\n\u0012magneto.test.TypeC\u0012\u0012magneto.test.TypeC")
+                    fun magneto_test_TypeC(): TypeC = TypeC()
+                """
+            ),
+            SourceFile.kotlin(
+                "test_MagnetoScopeExtension.kt",
+                """
+                    package magneto.generated.factories
+                    
+                    import magneto.internal.InjectableFactory
+                    import magneto.test.TypeD
+                    
+                    @InjectableFactory(metadata = "\n\u0012magneto.test.TypeD\u0012\u0012magneto.test.TypeD")
+                    fun magneto_test_TypeD(): TypeD = TypeD()
+                """
+            ),
+            SourceFile.kotlin(
+                "ScopeA.kt",
+                """
+                    package test.main
+                    
+                    import magneto.Scope
+                    import magneto.test.TypeA
+                    import magneto.test.TypeB
+                    import magneto.test.TypeC
+                    import magneto.test.TypeD
+                    
+                    @Scope
+                    abstract class ScopeA(
+                        val typeA: TypeA,
+                        val typeB: TypeB
+                    ) {
+                        abstract val typeC: TypeC
+                        abstract val typeD: TypeD
                     }
                 """
             ),
@@ -78,6 +176,69 @@ class CompileRegistryTest {
 
         compilate.assertGeneratedCode(
             """
+                package test.main
+                
+                import magneto.generated.extensions.test_main_MagnetoScopeAExtension
+                import magneto.internal.Magneto
+                import magneto.test.TypeA
+                import magneto.test.TypeB
+                import magneto.test.TypeC
+                import magneto.test.TypeD
+                
+                class MagnetoScopeA(
+                  typeA: TypeA,
+                  typeB: TypeB
+                ) : ScopeA(typeA, typeB) {
+                  val _extension: test_main_MagnetoScopeAExtension =
+                      Magneto.createScopeExtension(test_main_MagnetoScopeAExtension::class,typeA,typeB)
+                
+                  override val typeC: TypeC
+                    get() = _extension.typeC
+                
+                  override val typeD: TypeD
+                    get() = _extension.typeD
+                }
+
+            """,
+            """
+                package magneto.generated.extensions
+                
+                import magneto.test.TypeA
+                import magneto.test.TypeB
+                import magneto.test.TypeC
+                import magneto.test.TypeD
+                
+                class Magnettest_main_MagnetoScopeAExtension(
+                  override val typeA: TypeA,
+                  override val typeB: TypeB
+                ) : test_main_MagnetoScopeAExtension {
+                  override val typeC: TypeC by lazy { TODO() }
+                
+                  override val typeD: TypeD by lazy { TODO() }
+                }
+
+            """,
+            """
+                package magneto.generated.extensions
+                
+                import magneto.internal.ScopeExtension
+                import magneto.test.TypeA
+                import magneto.test.TypeB
+                import magneto.test.TypeC
+                import magneto.test.TypeD
+                
+                @ScopeExtension(metadata =
+                    "\n\u0010test.main.ScopeA\u0012\u001b\n\u0005typeA\u0012\u0012magneto.test.TypeA\u0012\u001b\n\u0005typeB\u0012\u0012magneto.test.TypeB\u001a\u001b\n\u0005typeC\u0012\u0012magneto.test.TypeC\u001a\u001b\n\u0005typeD\u0012\u0012magneto.test.TypeD")
+                interface test_main_MagnetoScopeAExtension {
+                  val typeA: TypeA
+                
+                  val typeB: TypeB
+                
+                  val typeC: TypeC
+                
+                  val typeD: TypeD
+                }
+
             """
         )
     }

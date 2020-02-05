@@ -2,6 +2,8 @@ package magneto.compiler.annotations.scope
 
 import com.squareup.kotlinpoet.*
 import magneto.compiler.ProcessEnvironment
+import magneto.compiler.annotations.getScopeClassName
+import magneto.compiler.annotations.getScopeExtensionInterfaceClassName
 import magneto.compiler.model.ScopeType
 import magneto.compiler.protobuf.Metadata
 import magneto.internal.Magneto
@@ -110,21 +112,6 @@ private fun ProcessEnvironment.generateScope(scope: ScopeType) {
         .apply {
             writeTo(filer)
         }
-}
-
-private fun TypeName.getScopeClassName(): ClassName =
-    when (this) {
-        is ClassName -> ClassName(packageName, "Magneto$simpleName")
-        Dynamic -> TODO()
-        is LambdaTypeName -> TODO()
-        is ParameterizedTypeName -> TODO()
-        is TypeVariableName -> TODO()
-        is WildcardTypeName -> TODO()
-    }
-
-private fun TypeName.getScopeExtensionInterfaceClassName(): ClassName {
-    val scopeName = getScopeClassName().canonicalName.replace(".", "_")
-    return ClassName("magneto.generated.extensions", "${scopeName}Extension")
 }
 
 fun generateScopeMetadata(scope: ScopeType): String =

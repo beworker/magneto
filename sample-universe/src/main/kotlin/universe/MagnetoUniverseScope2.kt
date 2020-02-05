@@ -20,6 +20,8 @@ internal class MagnetoUniverseScope2(
     // exported
     //override val constellations: Set<Constellation> get() = extension.constellations
     override val typeA: TypeA get() = extension.typeA
+    override val typeZ: TypeZ
+        get() = TODO("implement")
     //override val typeA: TypeA by lazy { TypeA(typeC) }
 
     // implicit types

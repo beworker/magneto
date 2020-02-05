@@ -8,4 +8,3 @@ internal fun ProcessEnvironment.analyzeRegistry(registry: RegistryType) {
     //  - dependency completeness
     //  - circular dependencies
 }
-

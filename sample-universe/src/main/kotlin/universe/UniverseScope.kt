@@ -14,6 +14,16 @@ abstract class UniverseScope(
     // exported
     //abstract val constellations: Set<Constellation>
     abstract val typeA: TypeA
+    abstract val typeZ: TypeZ
+}
+
+//@TestProfile
+abstract class TestUniverseScope(
+    language: String
+) : UniverseScope(language) {
+
+    //@TestProfile
+    abstract override val typeZ: TypeZ
 }
 
 @Scope
@@ -37,3 +47,16 @@ class TypeB
 
 @Injectable
 class TypeC(val typeB: TypeB)
+
+interface TypeZ
+
+@Injectable(type = TypeZ::class)
+class DefaultTypeZ : TypeZ
+
+//@TestProfile
+@Injectable(type = TypeZ::class)
+class TestTypeZ : TypeZ
+
+//@TestProfile
+//@Injectable(type = TypeZ::class)
+//fun createTypeZ(): TypeZ = TestTypeZ()

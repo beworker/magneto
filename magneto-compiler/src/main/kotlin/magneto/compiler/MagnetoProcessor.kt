@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import magneto.Injectable
 import magneto.Registry
 import magneto.Scope
+import magneto.compiler.analyzer.analyzeRegistry
 import magneto.compiler.annotations.injectable.generateInjectables
 import magneto.compiler.annotations.injectable.getInjectableTypes
 import magneto.compiler.annotations.registry.generateRegistry
@@ -55,14 +56,14 @@ class MagnetoProcessor : AbstractProcessor() {
             val scopes = env.getScopeTypes()
             env.generateScopes(scopes)
 
-            val registry = env.getRegistryType()
+            var registry = env.getRegistryType()
             if (registry != null) {
-                env.generateRegistry(
-                    registry.copy(
-                        injectables = registry.injectables + injectables,
-                        scopes = registry.scopes + scopes
-                    )
+                registry = registry.copy(
+                    injectables = registry.injectables + injectables,
+                    scopes = registry.scopes + scopes
                 )
+                env.analyzeRegistry(registry)
+                env.generateRegistry(registry)
             }
 
         } catch (e: CompilationException) {

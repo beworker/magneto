@@ -60,6 +60,7 @@ private fun ProcessEnvironment.generateScope(scope: ScopeType) {
                     addProperty(
                         PropertySpec
                             .builder("_extension", extensionInterfaceClassName)
+                            .addModifiers(KModifier.PRIVATE)
                             .initializer(
                                 CodeBlock
                                     .builder()

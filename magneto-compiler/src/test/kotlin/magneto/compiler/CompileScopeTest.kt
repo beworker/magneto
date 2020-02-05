@@ -174,7 +174,7 @@ class CompileScopeTest {
                   typeA: TypeA,
                   typeB: TypeB
                 ) : Scope(typeA, typeB) {
-                  val _extension: test_ScopeExtension =
+                  private val _extension: test_ScopeExtension =
                       Magneto.createScopeExtension(test_ScopeExtension::class,typeA,typeB)
                 
                   override val typeC: TypeC

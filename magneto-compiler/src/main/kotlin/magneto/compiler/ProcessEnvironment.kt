@@ -6,6 +6,7 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
+import javax.tools.Diagnostic
 
 class ProcessEnvironment(
     val messager: Messager,
@@ -19,4 +20,8 @@ class CompilationException(message: String, val element: Element) : Exception(me
 
 fun Element.failCompilation(message: String): Nothing {
     throw CompilationException(message, this)
+}
+
+internal fun ProcessEnvironment.warning(message: String) {
+    messager.printMessage(Diagnostic.Kind.WARNING, message)
 }

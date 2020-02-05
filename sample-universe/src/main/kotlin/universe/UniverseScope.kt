@@ -9,10 +9,10 @@ abstract class UniverseScope(
     val language: String
 ) {
     // provided, not exported to child scopes
-    internal abstract val name: InternalType
+    //internal abstract val name: InternalType
 
     // exported
-    abstract val constellations: Set<Constellation>
+    //abstract val constellations: Set<Constellation>
     abstract val typeA: TypeA
 }
 

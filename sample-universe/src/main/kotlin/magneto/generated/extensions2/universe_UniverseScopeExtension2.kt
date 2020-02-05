@@ -1,4 +1,4 @@
-package magneto.generated.extensions
+package magneto.generated.extensions2
 
 import magneto.internal.ScopeExtension
 import universe.Constellation
@@ -7,7 +7,7 @@ import universe.TypeB
 import universe.TypeC
 
 // feature module (under magneto.generated.scopes)
-@ScopeExtension
+//@ScopeExtension(metadata = "one")
 interface universe_UniverseScopeExtension2 {
 
     // provided

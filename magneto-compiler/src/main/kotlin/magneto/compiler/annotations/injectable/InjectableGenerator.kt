@@ -4,7 +4,7 @@ import com.squareup.kotlinpoet.*
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.model.InjectableType
 import magneto.compiler.protobuf.Metadata
-import magneto.internal.Factory
+import magneto.internal.InjectableFactory
 import java.nio.charset.Charset
 
 fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
@@ -16,7 +16,7 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
                 FunSpec.builder(injectorName)
                     .addAnnotation(
                         AnnotationSpec
-                            .builder(Factory::class)
+                            .builder(InjectableFactory::class)
                             .addMember("metadata = %S", generateInjectableMetadata(type))
                             .build()
                     )
@@ -68,6 +68,7 @@ private fun TypeName.toCanonicalName(): String =
 private fun generateInjectableMetadata(type: InjectableType): String =
     Metadata.Injectable.newBuilder()
         .setType(type.typeName.toString())
+        .setInterfaceType(type.interfaceTypeName.toString())
         .apply {
             for (dependency in type.dependencies) {
                 addDependency(

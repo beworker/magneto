@@ -1,7 +1,7 @@
 package magneto.generated
 
-import magneto.generated.extensions.universe_MagnetoUniverseScopeExtension2
-import magneto.generated.extensions.universe_UniverseScopeExtension2
+import magneto.generated.extensions2.universe_MagnetoUniverseScopeExtension2
+import magneto.generated.extensions2.universe_UniverseScopeExtension2
 import magneto.internal.ExtensionRegistry
 import kotlin.reflect.KClass
 

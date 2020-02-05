@@ -2,7 +2,7 @@ package magneto.internal
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
-annotation class Factory(
+annotation class InjectableFactory(
     val version: Int = 0,
     val metadata: String
 )

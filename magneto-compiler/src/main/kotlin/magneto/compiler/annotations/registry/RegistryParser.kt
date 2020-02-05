@@ -12,7 +12,7 @@ import magneto.compiler.model.InjectableType
 import magneto.compiler.model.RegistryType
 import magneto.compiler.model.ScopeType
 import magneto.compiler.utils.forEachAttributeOf
-import magneto.internal.Factory
+import magneto.internal.InjectableFactory
 import magneto.internal.ScopeExtension
 import java.nio.charset.Charset
 import javax.lang.model.element.ElementKind
@@ -69,7 +69,7 @@ private fun ProcessEnvironment.getEnclosedFactories(): Map<String, InjectableTyp
     for (holder in injectableHolders) {
         for (child in holder.enclosedElements) {
             if (child.kind == ElementKind.METHOD) {
-                child.forEachAttributeOf<Factory> { name, value ->
+                child.forEachAttributeOf<InjectableFactory> { name, value ->
                     if (name == "metadata") {
                         val bytes = value.value.toString().toByteArray(Charset.forName("UTF-8"))
                         val injectable = ProtobufMetadata.Injectable.parseFrom(bytes)

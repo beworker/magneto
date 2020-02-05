@@ -1,6 +1,6 @@
 package universe
 
-import magneto.generated.extensions.universe_UniverseScopeExtension2
+import magneto.generated.extensions2.universe_UniverseScopeExtension2
 import magneto.internal.Magneto
 
 // feature module (under feature package)
@@ -15,10 +15,10 @@ internal class MagnetoUniverseScope2(
         )
 
     // provided
-    override val name: InternalType by lazy { InternalType(typeA, typeB) }
+    //override val name: InternalType by lazy { InternalType(typeA, typeB) }
 
     // exported
-    override val constellations: Set<Constellation> get() = extension.constellations
+    //override val constellations: Set<Constellation> get() = extension.constellations
     override val typeA: TypeA get() = extension.typeA
     //override val typeA: TypeA by lazy { TypeA(typeC) }
 

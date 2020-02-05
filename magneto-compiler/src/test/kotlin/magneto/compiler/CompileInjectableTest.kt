@@ -32,10 +32,10 @@ class CompileInjectableTest {
             """
                 package magneto.generated.factories
 
-                import magneto.internal.Factory
+                import magneto.internal.InjectableFactory
                 import test.Feature
 
-                @Factory(metadata = "\u0012\u000ctest.Feature")
+                @InjectableFactory(metadata = "\n\u000ctest.Feature\u0012\u000ctest.Feature")
                 fun test_Feature(): Feature = Feature()
                 
             """
@@ -72,11 +72,11 @@ class CompileInjectableTest {
             """
                 package magneto.generated.factories
 
-                import magneto.internal.Factory
+                import magneto.internal.InjectableFactory
                 import test.DefaultFeature
                 import test.Feature
 
-                @Factory(metadata = "\u0012\u0013test.DefaultFeature")
+                @InjectableFactory(metadata = "\n\u0013test.DefaultFeature\u0012\u000ctest.Feature")
                 fun test_DefaultFeature(): Feature = DefaultFeature()
                 
             """
@@ -114,11 +114,12 @@ class CompileInjectableTest {
                 package magneto.generated.factories
 
                 import kotlin.String
-                import magneto.internal.Factory
+                import magneto.internal.InjectableFactory
                 import test.DefaultFeature
                 import test.Feature
 
-                @Factory(metadata = "\n\u0015\n\u0004task\u0012\rkotlin.String\u0012\u0013test.DefaultFeature")
+                @InjectableFactory(metadata =
+                    "\n\u0013test.DefaultFeature\u0012\u000ctest.Feature\u001a\u0015\n\u0004task\u0012\rkotlin.String")
                 fun test_DefaultFeature(task: String): Feature = DefaultFeature(task)
             """
         )
@@ -156,12 +157,12 @@ class CompileInjectableTest {
 
                 import kotlin.Int
                 import kotlin.String
-                import magneto.internal.Factory
+                import magneto.internal.InjectableFactory
                 import test.DefaultFeature
                 import test.Feature
 
-                @Factory(metadata =
-                    "\n\u0015\n\u0004task\u0012\rkotlin.String\n\u0015\n\u0007counter\u0012\nkotlin.Int\u0012\u0013test.DefaultFeature")
+                @InjectableFactory(metadata =
+                    "\n\u0013test.DefaultFeature\u0012\u000ctest.Feature\u001a\u0015\n\u0004task\u0012\rkotlin.String\u001a\u0015\n\u0007counter\u0012\nkotlin.Int")
                 fun test_DefaultFeature(task: String, counter: Int): Feature = DefaultFeature(task, counter)
             """
         )

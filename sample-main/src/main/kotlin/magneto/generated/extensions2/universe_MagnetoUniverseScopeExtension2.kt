@@ -1,6 +1,6 @@
-package magneto.generated.extensions
+package magneto.generated.extensions2
 
-import magneto.generated.factories.create_universe_canismajor_CanisMajor2
+import magneto.generated.factories2.create_universe_canismajor_CanisMajor2
 import universe.Constellation
 import universe.TypeA
 import universe.TypeB

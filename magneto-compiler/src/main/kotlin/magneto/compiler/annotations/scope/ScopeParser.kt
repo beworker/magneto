@@ -42,12 +42,12 @@ fun ProcessEnvironment.parseScopeType(element: TypeElement): ScopeType {
         element.failCompilation("@Scope can't be applied to $element: the class must have single constructor")
     }
 
-    val parameters = mutableListOf<DependencyType>()
+    val bound = mutableListOf<DependencyType>()
     kmClass.constructors.first().valueParameters.forEach { parameter ->
         val parameterType = parameter.type ?: element.failCompilation(
             "@Scope can't be applied to ${parameter.name} of $element: vararg are not supported"
         )
-        parameters += DependencyType(
+        bound += DependencyType(
             name = parameter.name,
             typeName = parameterType.toTypeName(parameter.name, element)
         )
@@ -65,7 +65,7 @@ fun ProcessEnvironment.parseScopeType(element: TypeElement): ScopeType {
 
     return ScopeType(
         typeName = element.asType().asTypeName(),
-        parameters = parameters,
-        properties = properties
+        bound = bound,
+        exported = properties
     )
 }

@@ -31,10 +31,10 @@ private fun ProcessEnvironment.generateScopeExtensionInterface(scope: ScopeType)
                         .build()
                 )
                 .apply {
-                    for (parameter in scope.parameters) {
+                    for (parameter in scope.bound) {
                         addProperty(parameter.name, parameter.typeName)
                     }
-                    for (property in scope.properties) {
+                    for (property in scope.exported) {
                         addProperty(property.name, property.typeName)
                     }
                 }
@@ -66,10 +66,10 @@ private fun ProcessEnvironment.generateScope(scope: ScopeType) {
                                     .builder()
                                     .add("%T.createScopeExtension(", Magneto::class)
                                     .apply {
-                                        val lastIndex = scope.parameters.lastIndex
+                                        val lastIndex = scope.bound.lastIndex
                                         if (lastIndex < 0) add("%T::class", extensionInterfaceClassName)
                                         else add("%T::class,", extensionInterfaceClassName)
-                                        for ((index, parameter) in scope.parameters.withIndex()) {
+                                        for ((index, parameter) in scope.bound.withIndex()) {
                                             if (index < lastIndex) add("${parameter.name},")
                                             else add(parameter.name)
                                         }
@@ -81,10 +81,10 @@ private fun ProcessEnvironment.generateScope(scope: ScopeType) {
                     )
                 }
                 .apply {
-                    for (parameter in scope.parameters) {
+                    for (parameter in scope.bound) {
                         addSuperclassConstructorParameter(parameter.name)
                     }
-                    for (property in scope.properties) {
+                    for (property in scope.exported) {
                         addProperty(
                             PropertySpec.builder(property.name, property.typeName)
                                 .addModifiers(KModifier.OVERRIDE)
@@ -101,7 +101,7 @@ private fun ProcessEnvironment.generateScope(scope: ScopeType) {
                     FunSpec
                         .constructorBuilder()
                         .apply {
-                            for (parameter in scope.parameters) {
+                            for (parameter in scope.bound) {
                                 addParameter(parameter.name, parameter.typeName)
                             }
                         }
@@ -119,7 +119,7 @@ fun generateScopeMetadata(scope: ScopeType): String =
     Metadata.Scope.newBuilder()
         .setType(scope.typeName.toString())
         .apply {
-            for (property in scope.properties) {
+            for (property in scope.exported) {
                 addProperty(
                     Metadata.Dependency.newBuilder()
                         .setName(property.name)
@@ -127,7 +127,7 @@ fun generateScopeMetadata(scope: ScopeType): String =
                         .build()
                 )
             }
-            for (parameter in scope.parameters) {
+            for (parameter in scope.bound) {
                 addParameter(
                     Metadata.Dependency.newBuilder()
                         .setName(parameter.name)

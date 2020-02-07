@@ -4,6 +4,6 @@ import com.squareup.kotlinpoet.TypeName
 
 data class ScopeType(
     val typeName: TypeName,
-    val parameters: List<DependencyType>,
-    val properties: List<DependencyType>
+    val bound: List<DependencyType>,
+    val exported: List<DependencyType>
 )

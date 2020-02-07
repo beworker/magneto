@@ -25,22 +25,22 @@ private fun ProcessEnvironment.generateScopeExtension(scope: ScopeType) {
                 .primaryConstructor(
                     FunSpec.constructorBuilder()
                         .apply {
-                            for (parameter in scope.parameters) {
+                            for (parameter in scope.bound) {
                                 addParameter(parameter.name, parameter.typeName)
                             }
                         }
                         .build()
                 )
                 .apply {
-                    for (parameter in scope.parameters) {
+                    for (property in scope.bound) {
                         addProperty(
-                            PropertySpec.builder(parameter.name, parameter.typeName)
-                                .initializer(parameter.name)
+                            PropertySpec.builder(property.name, property.typeName)
+                                .initializer(property.name)
                                 .addModifiers(KModifier.OVERRIDE)
                                 .build()
                         )
                     }
-                    for (property in scope.properties) {
+                    for (property in scope.exported) {
                         addProperty(
                             PropertySpec.builder(property.name, property.typeName)
                                 .addModifiers(KModifier.OVERRIDE)

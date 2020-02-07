@@ -105,13 +105,13 @@ private fun ProcessEnvironment.getEnclosedScopes(): List<ScopeType> {
                     val scopeTypeName = ClassName.bestGuess(scope.type)
                     scopes += ScopeType(
                         typeName = scopeTypeName,
-                        parameters = scope.parameterList.map {
+                        bound = scope.parameterList.map {
                             DependencyType(
                                 name = it.name,
                                 typeName = ClassName.bestGuess(it.type)
                             )
                         },
-                        properties = scope.propertyList.map {
+                        exported = scope.propertyList.map {
                             DependencyType(
                                 name = it.name,
                                 typeName = ClassName.bestGuess(it.type)

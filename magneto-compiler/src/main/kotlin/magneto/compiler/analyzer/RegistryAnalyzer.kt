@@ -7,20 +7,15 @@ import magneto.compiler.model.RegistryType
 import java.util.*
 
 internal fun ProcessEnvironment.analyzeRegistry(registry: RegistryType) {
-
     val injectableFactories = registry.injectables.associateBy { it.typeId }
     for (scope in registry.scopes) {
         val bounds = scope.bound.associateBy { it.typeId }
         val inners = mutableMapOf<String, DependencyType>()
-        val instantiations: LinkedList<DependencyType> = LinkedList()
         for (instance in scope.exported) {
-            injectInstance(instance, bounds, inners, injectableFactories, instantiations)
+            injectInstance(instance, bounds, inners, injectableFactories)
         }
+        println("")
     }
-
-    // todo analyse scopes and dependencies here
-    //  - dependency completeness
-    //  - circular dependencies
 }
 
 private fun ProcessEnvironment.injectInstance(
@@ -28,40 +23,40 @@ private fun ProcessEnvironment.injectInstance(
     bounds: Map<String, DependencyType>,
     inners: MutableMap<String, DependencyType>,
     injectableFactories: Map<String, InjectableType>,
-    instantiations: LinkedList<DependencyType>
+    instantiations: LinkedList<DependencyType> = LinkedList()
 ) {
     val typeId = instance.typeId
 
+    val instanceExists = instantiations.any { it.typeId == typeId }
+    if (instanceExists) {
+        // fixme: throw circular dependency exception
+        error("circular dependency: $instantiations")
+    }
+
+    instantiations.addLast(instance)
+
     val bound = bounds[typeId]
     if (bound != null) {
-        // fixme: initialize from bound
-        // val boundType: BoundType get() = boundType
+        instantiations.removeLast()
         return
     }
 
     val inner = inners[typeId]
     if (inner != null) {
-        // fixme: initialize from inner
-        // val innerType: InnerType get() = innerType
+        instantiations.removeLast()
         return
     }
 
     val injectableFactory = injectableFactories[typeId]
     if (injectableFactory != null) {
-        val instanceExists = instantiations.any { it.typeId == typeId }
-        if (instanceExists) {
-            // fixme: throw circular dependency exception
-            return
-        }
-
-        instantiations.addLast(instance)
         for (dependency in injectableFactory.dependencies) {
             injectInstance(dependency, bounds, inners, injectableFactories, instantiations)
-            inners[typeId] = dependency
         }
+        inners[typeId] = instance
         instantiations.removeLast()
         return
     }
 
     // fixme: throw error, neither bound, nor factory
+    error("dependency cannot be found: $instance")
 }

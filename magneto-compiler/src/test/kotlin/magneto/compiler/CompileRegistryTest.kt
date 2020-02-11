@@ -27,10 +27,10 @@ class CompileRegistryTest {
                     class TypeB
                     
                     @Injectable
-                    class TypeC
+                    class TypeC(val typeB: TypeB)
                     
                     @Injectable
-                    class TypeD
+                    class TypeD(val typeA: TypeA, val typeC: TypeC)
                 """
             )
         )
@@ -50,21 +50,24 @@ class CompileRegistryTest {
                 package magneto.generated.factories
                 
                 import magneto.internal.InjectableFactory
+                import magneto.test.TypeB
                 import magneto.test.TypeC
                 
-                @InjectableFactory(metadata = "\n\u0012magneto.test.TypeC\u0012\u0012magneto.test.TypeC")
-                fun magneto_test_TypeC(): TypeC = TypeC()
-
+                @InjectableFactory(metadata =
+                    "\n\u0012magneto.test.TypeC\u0012\u0012magneto.test.TypeC\u001a\u001b\n\u0005typeB\u0012\u0012magneto.test.TypeB")
+                fun magneto_test_TypeC(typeB: TypeB): TypeC = TypeC(typeB)
             """,
             """
                 package magneto.generated.factories
                 
                 import magneto.internal.InjectableFactory
+                import magneto.test.TypeA
+                import magneto.test.TypeC
                 import magneto.test.TypeD
                 
-                @InjectableFactory(metadata = "\n\u0012magneto.test.TypeD\u0012\u0012magneto.test.TypeD")
-                fun magneto_test_TypeD(): TypeD = TypeD()
-
+                @InjectableFactory(metadata =
+                    "\n\u0012magneto.test.TypeD\u0012\u0012magneto.test.TypeD\u001a\u001b\n\u0005typeA\u0012\u0012magneto.test.TypeA\u001a\u001b\n\u0005typeC\u0012\u0012magneto.test.TypeC")
+                fun magneto_test_TypeD(typeA: TypeA, typeC: TypeC): TypeD = TypeD(typeA, typeC)
             """,
             """
                 package magneto.generated.factories
@@ -89,8 +92,8 @@ class CompileRegistryTest {
                      
                     class TypeA
                     class TypeB
-                    class TypeC
-                    class TypeD
+                    class TypeC(val typeB: TypeB)
+                    class TypeD(val typeA: TypeA, val typeC: TypeC)
                 """
             ),
             SourceFile.kotlin(
@@ -118,27 +121,32 @@ class CompileRegistryTest {
                 """
             ),
             SourceFile.kotlin(
-                "test_MagnetoScopeExtension.kt",
+                "magneto_test_TypeC.kt",
                 """
                     package magneto.generated.factories
                     
                     import magneto.internal.InjectableFactory
+                    import magneto.test.TypeB
                     import magneto.test.TypeC
                     
-                    @InjectableFactory(metadata = "\n\u0012magneto.test.TypeC\u0012\u0012magneto.test.TypeC")
-                    fun magneto_test_TypeC(): TypeC = TypeC()
+                    @InjectableFactory(metadata =
+                        "\n\u0012magneto.test.TypeC\u0012\u0012magneto.test.TypeC\u001a\u001b\n\u0005typeB\u0012\u0012magneto.test.TypeB")
+                    fun magneto_test_TypeC(typeB: TypeB): TypeC = TypeC(typeB)
                 """
             ),
             SourceFile.kotlin(
-                "test_MagnetoScopeExtension.kt",
+                "magneto_test_TypeD.kt",
                 """
                     package magneto.generated.factories
                     
                     import magneto.internal.InjectableFactory
+                    import magneto.test.TypeA
+                    import magneto.test.TypeC
                     import magneto.test.TypeD
                     
-                    @InjectableFactory(metadata = "\n\u0012magneto.test.TypeD\u0012\u0012magneto.test.TypeD")
-                    fun magneto_test_TypeD(): TypeD = TypeD()
+                    @InjectableFactory(metadata =
+                        "\n\u0012magneto.test.TypeD\u0012\u0012magneto.test.TypeD\u001a\u001b\n\u0005typeA\u0012\u0012magneto.test.TypeA\u001a\u001b\n\u0005typeC\u0012\u0012magneto.test.TypeC")
+                    fun magneto_test_TypeD(typeA: TypeA, typeC: TypeC): TypeD = TypeD(typeA, typeC)
                 """
             ),
             SourceFile.kotlin(

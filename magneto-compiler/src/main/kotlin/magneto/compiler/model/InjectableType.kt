@@ -7,5 +7,5 @@ data class InjectableType(
     val interfaceTypeName: TypeName,
     val dependencies: List<DependencyType>
 ) {
-    val typeId: String by lazy { typeName.toString() }
+    val typeId: String by lazy { interfaceTypeName.toString() }
 }

@@ -2,18 +2,22 @@ package magneto.compiler.annotations.registry
 
 import com.squareup.kotlinpoet.*
 import magneto.compiler.ProcessEnvironment
+import magneto.compiler.annotations.FACTORY_PACKAGE
 import magneto.compiler.annotations.getScopeExtensionInterfaceClassName
 import magneto.compiler.annotations.requireClassName
-import magneto.compiler.model.RegistryType
-import magneto.compiler.model.ScopeType
+import magneto.compiler.annotations.toFactoryFunctionName
+import magneto.compiler.model.AnalyzedRegistryType
+import magneto.compiler.model.AnalyzedScopeType
+import magneto.compiler.model.ScopeRole
 
-fun ProcessEnvironment.generateRegistry(registry: RegistryType) {
+fun ProcessEnvironment.generateRegistry(registry: AnalyzedRegistryType) {
     for (scope in registry.scopes) {
         generateScopeExtension(scope)
     }
+    // fixme generate registry
 }
 
-private fun ProcessEnvironment.generateScopeExtension(scope: ScopeType) {
+private fun ProcessEnvironment.generateScopeExtension(scope: AnalyzedScopeType) {
     val scopeInterfaceClassName = scope.typeName.getScopeExtensionInterfaceClassName()
     val scopeClassName = scope.typeName.getScopeExtensionClassName()
     FileSpec
@@ -40,11 +44,36 @@ private fun ProcessEnvironment.generateScopeExtension(scope: ScopeType) {
                                 .build()
                         )
                     }
-                    for (property in scope.exported) {
+                    for (property in scope.properties) {
                         addProperty(
                             PropertySpec.builder(property.name, property.typeName)
-                                .addModifiers(KModifier.OVERRIDE)
-                                .delegate("lazy { TODO() }")
+                                .also {
+                                    when (property.scopeRole) {
+                                        ScopeRole.Inner -> it.addModifiers(KModifier.PRIVATE)
+                                        ScopeRole.Exported -> it.addModifiers(KModifier.OVERRIDE)
+                                    }
+                                }
+                                .delegate(
+                                    CodeBlock.builder()
+                                        .beginControlFlow("lazy")
+                                        .also {
+                                            val dependencies = property.injectable.dependencies
+                                            val factoryName = property.injectable.typeName.toFactoryFunctionName()
+                                            val factoryMemberName = MemberName(FACTORY_PACKAGE, factoryName)
+                                            if (dependencies.isEmpty()) {
+                                                it.addStatement("%M()", factoryMemberName)
+                                            } else {
+                                                val params = StringBuilder()
+                                                for (dependency in dependencies) {
+                                                    params.append(dependency.name).append(", ")
+                                                }
+                                                params.setLength(params.length - 2)
+                                                it.addStatement("%M($params)", factoryMemberName)
+                                            }
+                                        }
+                                        .endControlFlow()
+                                        .build()
+                                )
                                 .build()
                         )
                     }

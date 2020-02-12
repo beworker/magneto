@@ -62,8 +62,8 @@ class MagnetoProcessor : AbstractProcessor() {
                     injectables = registry.injectables + injectables,
                     scopes = registry.scopes + scopes
                 )
-                env.analyzeRegistry(registry)
-                env.generateRegistry(registry)
+                val analyzedRegistry = env.analyzeRegistry(registry)
+                env.generateRegistry(analyzedRegistry)
             }
 
         } catch (e: CompilationException) {

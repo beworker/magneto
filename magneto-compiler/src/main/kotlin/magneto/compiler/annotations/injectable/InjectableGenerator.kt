@@ -1,7 +1,12 @@
 package magneto.compiler.annotations.injectable
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
 import magneto.compiler.ProcessEnvironment
+import magneto.compiler.annotations.FACTORY_PACKAGE
+import magneto.compiler.annotations.toFactoryFunctionName
 import magneto.compiler.model.InjectableType
 import magneto.compiler.protobuf.Metadata
 import magneto.internal.InjectableFactory
@@ -9,9 +14,9 @@ import java.nio.charset.Charset
 
 fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
     for (type in types) {
-        val injectorName = type.typeName.toCanonicalName()
+        val injectorName = type.typeName.toFactoryFunctionName()
         FileSpec
-            .builder("magneto.generated.factories", injectorName)
+            .builder(FACTORY_PACKAGE, injectorName)
             .addFunction(
                 FunSpec.builder(injectorName)
                     .addAnnotation(
@@ -54,16 +59,6 @@ fun ProcessEnvironment.generateInjectables(types: List<InjectableType>) {
             }
     }
 }
-
-private fun TypeName.toCanonicalName(): String =
-    when (this) {
-        is ClassName -> canonicalName.replace(".", "_")
-        Dynamic -> TODO()
-        is LambdaTypeName -> TODO()
-        is ParameterizedTypeName -> TODO()
-        is TypeVariableName -> TODO()
-        is WildcardTypeName -> TODO()
-    }
 
 private fun generateInjectableMetadata(type: InjectableType): String =
     Metadata.Injectable.newBuilder()

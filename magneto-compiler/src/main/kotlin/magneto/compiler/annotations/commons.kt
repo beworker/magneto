@@ -23,3 +23,15 @@ internal fun TypeName.getScopeExtensionInterfaceClassName(): ClassName {
     val name = "${scopeName.packageName.replace(".", "_")}_${scopeName.simpleName}Extension"
     return ClassName("magneto.generated.extensions", name)
 }
+
+internal fun TypeName.toFactoryFunctionName(): String =
+    when (this) {
+        is ClassName -> canonicalName.replace(".", "_")
+        Dynamic -> TODO()
+        is LambdaTypeName -> TODO()
+        is ParameterizedTypeName -> TODO()
+        is TypeVariableName -> TODO()
+        is WildcardTypeName -> TODO()
+    }
+
+internal const val FACTORY_PACKAGE = "magneto.generated.factories"

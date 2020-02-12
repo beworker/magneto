@@ -94,6 +94,7 @@ class CompileRegistryTest {
                     class TypeB
                     class TypeC(val typeB: TypeB)
                     class TypeD(val typeA: TypeA, val typeC: TypeC)
+                    class TypeE
                 """
             ),
             SourceFile.kotlin(
@@ -150,6 +151,18 @@ class CompileRegistryTest {
                 """
             ),
             SourceFile.kotlin(
+                "magneto_test_TypeE.kt",
+                """
+                    package magneto.generated.factories
+                    
+                    import magneto.internal.InjectableFactory
+                    import magneto.test.TypeE
+                    
+                    @InjectableFactory(metadata = "\n\u0012magneto.test.TypeE\u0012\u0012magneto.test.TypeE")
+                    fun magneto_test_TypeE(): TypeE = TypeE()
+                """
+            ),
+            SourceFile.kotlin(
                 "ScopeA.kt",
                 """
                     package test.main
@@ -159,14 +172,15 @@ class CompileRegistryTest {
                     import magneto.test.TypeB
                     import magneto.test.TypeC
                     import magneto.test.TypeD
+                    import magneto.test.TypeE
                     
                     @Scope
                     abstract class ScopeA(
                         val typeA: TypeA,
                         val typeB: TypeB
                     ) {
-                        abstract val typeC: TypeC
                         abstract val typeD: TypeD
+                        abstract val typeE: TypeE
                     }
                 """
             ),
@@ -190,8 +204,8 @@ class CompileRegistryTest {
                 import magneto.internal.Magneto
                 import magneto.test.TypeA
                 import magneto.test.TypeB
-                import magneto.test.TypeC
                 import magneto.test.TypeD
+                import magneto.test.TypeE
                 
                 class MagnetoScopeA(
                   typeA: TypeA,
@@ -200,11 +214,11 @@ class CompileRegistryTest {
                   private val _extension: test_main_ScopeAExtension =
                       Magneto.createScopeExtension(test_main_ScopeAExtension::class,typeA,typeB)
                 
-                  override val typeC: TypeC
-                    get() = _extension.typeC
-                
                   override val typeD: TypeD
                     get() = _extension.typeD
+
+                  override val typeE: TypeE
+                    get() = _extension.typeE
                 }
 
             """,
@@ -214,37 +228,52 @@ class CompileRegistryTest {
                 import magneto.internal.ScopeExtension
                 import magneto.test.TypeA
                 import magneto.test.TypeB
-                import magneto.test.TypeC
                 import magneto.test.TypeD
+                import magneto.test.TypeE
                 
                 @ScopeExtension(metadata =
-                    "\n\u0010test.main.ScopeA\u0012\u001b\n\u0005typeA\u0012\u0012magneto.test.TypeA\u0012\u001b\n\u0005typeB\u0012\u0012magneto.test.TypeB\u001a\u001b\n\u0005typeC\u0012\u0012magneto.test.TypeC\u001a\u001b\n\u0005typeD\u0012\u0012magneto.test.TypeD")
+                    "\n\u0010test.main.ScopeA\u0012\u001b\n\u0005typeA\u0012\u0012magneto.test.TypeA\u0012\u001b\n\u0005typeB\u0012\u0012magneto.test.TypeB\u001a\u001b\n\u0005typeD\u0012\u0012magneto.test.TypeD\u001a\u001b\n\u0005typeE\u0012\u0012magneto.test.TypeE")
                 interface test_main_ScopeAExtension {
                   val typeA: TypeA
                 
                   val typeB: TypeB
                 
-                  val typeC: TypeC
-                
                   val typeD: TypeD
+
+                  val typeE: TypeE
                 }
 
             """,
             """
                 package magneto.generated.extensions
-                
+
+                import magneto.generated.factories.magneto_test_TypeC
+                import magneto.generated.factories.magneto_test_TypeD
+                import magneto.generated.factories.magneto_test_TypeE
                 import magneto.test.TypeA
                 import magneto.test.TypeB
                 import magneto.test.TypeC
                 import magneto.test.TypeD
+                import magneto.test.TypeE
                 
                 class test_main_MagnetoScopeAExtension(
                   override val typeA: TypeA,
                   override val typeB: TypeB
                 ) : test_main_ScopeAExtension {
-                  override val typeC: TypeC by lazy { TODO() }
+                  private val typeC: TypeC by lazy {
+                    magneto_test_TypeC(typeB)
+                  }
                 
-                  override val typeD: TypeD by lazy { TODO() }
+                
+                  override val typeD: TypeD by lazy {
+                    magneto_test_TypeD(typeA, typeC)
+                  }
+
+
+                  override val typeE: TypeE by lazy {
+                    magneto_test_TypeE()
+                  }
+
                 }
 
             """

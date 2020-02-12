@@ -30,7 +30,7 @@ abstract class TestUniverseScope(
 abstract class StellarScope(
     val distance: Int
 ) {
-    abstract val name: String
+    //abstract val name: String
 }
 
 @Injectable
@@ -54,8 +54,8 @@ interface TypeZ
 class DefaultTypeZ : TypeZ
 
 //@TestProfile
-@Injectable(type = TypeZ::class)
-class TestTypeZ : TypeZ
+//@Injectable(type = TypeZ::class)
+//class TestTypeZ : TypeZ
 
 //@TestProfile
 //@Injectable(type = TypeZ::class)

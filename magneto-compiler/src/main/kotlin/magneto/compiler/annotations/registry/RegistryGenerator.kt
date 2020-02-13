@@ -102,6 +102,11 @@ fun ProcessEnvironment.generateExtensionRegistry(registry: AnalyzedRegistryType)
                 .addFunction(
                     FunSpec.builder("createScopeExtension")
                         .addModifiers(KModifier.OVERRIDE)
+                        .addAnnotation(
+                            AnnotationSpec.builder(Suppress::class)
+                                .addMember("\"UNCHECKED_CAST\"")
+                                .build()
+                        )
                         .addTypeVariable(returnType)
                         .addParameter("type", classType)
                         .addParameter("args", Any::class, KModifier.VARARG)
@@ -113,7 +118,8 @@ fun ProcessEnvironment.generateExtensionRegistry(registry: AnalyzedRegistryType)
                                         it.beginControlFlow("return when(type)")
                                         for (scope in registry.scopes) {
                                             val scopeClassName = scope.typeName.getScopeExtensionClassName()
-                                            it.addStatement("%T::class ->", scopeClassName)
+                                            val scopeInterface = scope.typeName.getScopeExtensionInterfaceClassName()
+                                            it.addStatement("%T::class ->", scopeInterface)
                                             it.indent()
                                             it.addStatement("%T(", scopeClassName)
                                             val lastIndex = scope.bound.lastIndex
@@ -124,10 +130,10 @@ fun ProcessEnvironment.generateExtensionRegistry(registry: AnalyzedRegistryType)
                                             it.addStatement(") as T")
                                             it.unindent()
                                         }
-                                        it.addStatement("else -> error(\"kaboom\")")
+                                        it.addStatement("else -> error(\"Cannot find \$type\")")
                                         it.endControlFlow()
                                     } else {
-                                        it.addStatement("error(\"kaboom\")")
+                                        it.addStatement("else -> error(\"Cannot find \$type\")")
                                     }
                                 }
                                 .build()

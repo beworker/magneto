@@ -1,6 +1,7 @@
 package magneto.compiler.annotations.registry
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import magneto.compiler.ProcessEnvironment
 import magneto.compiler.annotations.FACTORY_PACKAGE
 import magneto.compiler.annotations.getScopeExtensionInterfaceClassName
@@ -8,13 +9,13 @@ import magneto.compiler.annotations.requireClassName
 import magneto.compiler.annotations.toFactoryFunctionName
 import magneto.compiler.model.AnalyzedRegistryType
 import magneto.compiler.model.AnalyzedScopeType
-import magneto.compiler.model.ScopeRole
+import magneto.compiler.model.Visibility
 
 fun ProcessEnvironment.generateRegistry(registry: AnalyzedRegistryType) {
     for (scope in registry.scopes) {
         generateScopeExtension(scope)
     }
-    // fixme generate registry
+    generateExtensionRegistry(registry)
 }
 
 private fun ProcessEnvironment.generateScopeExtension(scope: AnalyzedScopeType) {
@@ -48,9 +49,9 @@ private fun ProcessEnvironment.generateScopeExtension(scope: AnalyzedScopeType) 
                         addProperty(
                             PropertySpec.builder(property.name, property.typeName)
                                 .also {
-                                    when (property.scopeRole) {
-                                        ScopeRole.Inner -> it.addModifiers(KModifier.PRIVATE)
-                                        ScopeRole.Exported -> it.addModifiers(KModifier.OVERRIDE)
+                                    when (property.visibility) {
+                                        Visibility.Public -> it.addModifiers(KModifier.OVERRIDE)
+                                        Visibility.Private -> it.addModifiers(KModifier.PRIVATE)
                                     }
                                 }
                                 .delegate(
@@ -78,6 +79,61 @@ private fun ProcessEnvironment.generateScopeExtension(scope: AnalyzedScopeType) 
                         )
                     }
                 }
+                .build()
+        )
+        .build()
+        .apply {
+            writeTo(filer)
+        }
+}
+
+fun ProcessEnvironment.generateExtensionRegistry(registry: AnalyzedRegistryType) {
+    val extensionRegistryClassName = ClassName("magneto.generated", "MagnetoExtensionRegistry")
+    val extensionRegistryInterfaceClassName = ClassName("magneto.internal", "ExtensionRegistry")
+    val returnType = TypeVariableName("T", Any::class)
+    val classType = ClassName("kotlin.reflect", "KClass").parameterizedBy(returnType)
+
+    FileSpec
+        .builder(extensionRegistryClassName.packageName, extensionRegistryClassName.simpleName)
+        .addType(
+            TypeSpec
+                .classBuilder(extensionRegistryClassName)
+                .addSuperinterface(extensionRegistryInterfaceClassName)
+                .addFunction(
+                    FunSpec.builder("createScopeExtension")
+                        .addModifiers(KModifier.OVERRIDE)
+                        .addTypeVariable(returnType)
+                        .addParameter("type", classType)
+                        .addParameter("args", Any::class, KModifier.VARARG)
+                        .returns(returnType)
+                        .addCode(
+                            CodeBlock.builder()
+                                .also {
+                                    if (registry.scopes.isNotEmpty()) {
+                                        it.beginControlFlow("return when(type)")
+                                        for (scope in registry.scopes) {
+                                            val scopeClassName = scope.typeName.getScopeExtensionClassName()
+                                            it.addStatement("%T::class ->", scopeClassName)
+                                            it.indent()
+                                            it.addStatement("%T(", scopeClassName)
+                                            val lastIndex = scope.bound.lastIndex
+                                            for ((index, parameter) in scope.bound.withIndex()) {
+                                                val append = if (index == lastIndex) "" else ","
+                                                it.addStatement("  args[$index] as %T$append", parameter.typeName)
+                                            }
+                                            it.addStatement(") as T")
+                                            it.unindent()
+                                        }
+                                        it.addStatement("else -> error(\"kaboom\")")
+                                        it.endControlFlow()
+                                    } else {
+                                        it.addStatement("error(\"kaboom\")")
+                                    }
+                                }
+                                .build()
+                        )
+                        .build()
+                )
                 .build()
         )
         .build()

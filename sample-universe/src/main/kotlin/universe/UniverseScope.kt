@@ -13,6 +13,7 @@ abstract class UniverseScope(
 
     // exported
     //abstract val constellations: Set<Constellation>
+
     abstract val typeA: TypeA
     abstract val typeZ: TypeZ
 }

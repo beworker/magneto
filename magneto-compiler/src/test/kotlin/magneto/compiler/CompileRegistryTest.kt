@@ -223,6 +223,28 @@ class CompileRegistryTest {
 
             """,
             """
+                package magneto.generated
+                
+                import kotlin.Any
+                import kotlin.reflect.KClass
+                import magneto.generated.extensions.test_main_MagnetoScopeAExtension
+                import magneto.internal.ExtensionRegistry
+                import magneto.test.TypeA
+                import magneto.test.TypeB
+                
+                class MagnetoExtensionRegistry : ExtensionRegistry {
+                  override fun <T : Any> createScopeExtension(type: KClass<T>, vararg args: Any): T = when(type) {
+                    test_main_MagnetoScopeAExtension::class ->
+                      test_main_MagnetoScopeAExtension(
+                        args[0] as TypeA,
+                        args[1] as TypeB
+                      ) as T
+                    else -> error("kaboom")
+                  }
+                }
+
+            """,
+            """
                 package magneto.generated.extensions
                 
                 import magneto.internal.ScopeExtension

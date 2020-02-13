@@ -17,7 +17,7 @@ internal fun ProcessEnvironment.analyzeRegistry(registry: RegistryType): Analyze
                 inners,
                 injectableFactories,
                 properties,
-                ScopeRole.Exported
+                Visibility.Public
             )
         }
         AnalyzedScopeType(scope.typeName, scope.bound, properties)
@@ -31,14 +31,14 @@ private fun ProcessEnvironment.injectInstance(
     inners: MutableMap<String, DependencyType>,
     injectableFactories: Map<String, InjectableType>,
     properties: MutableList<AnalyzedDependencyType>,
-    scopeRole: ScopeRole,
+    visibility: Visibility,
     instantiations: LinkedList<DependencyType> = LinkedList()
 ) {
     val typeId = instance.typeId
 
     val instanceExists = instantiations.any { it.typeId == typeId }
     if (instanceExists) {
-        // fixme: throw circular dependency exception
+        // fixme: report circular dependency exception
         error("circular dependency: $instantiations")
     }
 
@@ -65,7 +65,7 @@ private fun ProcessEnvironment.injectInstance(
                 inners,
                 injectableFactories,
                 properties,
-                ScopeRole.Inner,
+                Visibility.Private,
                 instantiations
             )
         }
@@ -74,12 +74,12 @@ private fun ProcessEnvironment.injectInstance(
             name = instance.name,
             typeName = instance.typeName,
             injectable = injectableFactory,
-            scopeRole = scopeRole
+            visibility = visibility
         )
         instantiations.removeLast()
         return
     }
 
-    // fixme: throw error, neither bound, nor factory
+    // fixme: report error, neither bound, nor factory
     error("dependency cannot be found: $instance")
 }

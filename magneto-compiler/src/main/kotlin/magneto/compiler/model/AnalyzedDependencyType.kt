@@ -6,7 +6,7 @@ data class AnalyzedDependencyType(
     val name: String,
     val typeName: TypeName,
     val injectable: InjectableType,
-    val scopeRole: ScopeRole
+    val visibility: Visibility
 )
 
-enum class ScopeRole { Exported, Inner }
+enum class Visibility { Public, Private }

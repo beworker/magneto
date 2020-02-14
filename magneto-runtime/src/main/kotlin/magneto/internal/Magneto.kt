@@ -5,7 +5,8 @@ import kotlin.reflect.KClass
 object Magneto {
 
     private val registry by lazy {
-        val registryClass = Class.forName("magneto.generated.MagnetoExtensionRegistry")
+        val registryClass = Magneto::class.java.classLoader
+            .loadClass("magneto.generated.MagnetoExtensionRegistry")
         registryClass.constructors.first().newInstance() as ExtensionRegistry
     }
 

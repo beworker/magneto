@@ -15,9 +15,9 @@ dependencies {
     implementation(project(":magneto-runtime"))
     kapt(project(":magneto-compiler"))
 
-    implementation(project(":sample:sample-universe"))
-    implementation(project(":sample:sample-universe-canismajor"))
-    implementation(project(":sample:sample-universe-ursamajor"))
+    implementation(project(":sample:universe"))
+    implementation(project(":sample:universe-canismajor"))
+    implementation(project(":sample:universe-ursamajor"))
 }
 
 tasks {
